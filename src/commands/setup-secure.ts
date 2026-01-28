@@ -25,6 +25,12 @@ import { homedir } from "node:os";
 import type { MoltbotConfig } from "../config/schema.js";
 import { loadConfig, saveConfig } from "../config/load.js";
 import { log } from "../logging.js";
+import {
+  type SecurityProfile,
+  getAllProfiles,
+  applyProfile,
+  getRecommendedProfile,
+} from "../config/security-profiles.js";
 
 // ============================================================================
 // Secure Defaults
@@ -123,11 +129,54 @@ function getSecureDefaults(): Partial<MoltbotConfig> {
 // ============================================================================
 
 async function stepIntro(): Promise<void> {
-  intro(bold(cyan("🔒 ClancyBot Secure Setup Wizard")));
+  intro(bold(cyan("🔒 Moltbot Secure Setup Wizard")));
   note(
-    `This wizard will configure ClancyBot with Pentagon-level security in 5 minutes.\n\n${dim("Features:")}\n• ${green("✓")} Auto-generated secure tokens\n• ${green("✓")} Docker sandbox isolation\n• ${green("✓")} Pairing-based DM policy\n• ${green("✓")} Browser profile validation\n• ${green("✓")} Rate limiting & cost controls\n• ${green("✓")} Secrets encryption\n• ${green("✓")} Comprehensive logging`,
+    `This wizard will configure Moltbot with Pentagon-level security.\n\n${dim("Features:")}\n• ${green("✓")} 3 Security Profiles (Maximum/Balanced/Development)\n• ${green("✓")} Auto-generated secure tokens\n• ${green("✓")} Docker sandbox isolation\n• ${green("✓")} Memory encryption\n• ${green("✓")} Network policies\n• ${green("✓")} Comprehensive monitoring`,
     "Welcome",
   );
+}
+
+async function stepSelectProfile(): Promise<SecurityProfile> {
+  const profiles = getAllProfiles();
+
+  note(
+    `${bold("Choose your security profile:")}\n\n` +
+      `${bold(cyan("Maximum (Pentagon++++)"))}\n` +
+      `  • All protections required\n` +
+      `  • Docker mandatory\n` +
+      `  • Only signed skills\n` +
+      `  • Score: 100/100, Layers: 14/14\n\n` +
+      `${bold(green("Balanced (Pentagon+++) [RECOMMENDED]"))}\n` +
+      `  • Auto-detects features\n` +
+      `  • Flexible but secure\n` +
+      `  • Score: 95/100, Layers: 12/14\n\n` +
+      `${bold(yellow("Development (Pentagon)"))}\n` +
+      `  • Minimal restrictions\n` +
+      `  • For local dev only\n` +
+      `  • Score: 60/100, Layers: 4/14`,
+    "Security Profiles"
+  );
+
+  const profile = (await select({
+    message: "Select security profile:",
+    options: profiles.map((p) => ({
+      value: p.id,
+      label: `${p.name} (${p.badge})`,
+      hint: `Score: ${p.score}/100`,
+    })),
+    initialValue: getRecommendedProfile().id,
+  })) as SecurityProfile;
+
+  const selectedConfig = profiles.find((p) => p.id === profile)!;
+
+  note(
+    `${selectedConfig.description}\n\n` +
+      `Security Score: ${bold(String(selectedConfig.score))}/100\n` +
+      `Defense Layers: ${bold(String(selectedConfig.layers))}/14`,
+    selectedConfig.name
+  );
+
+  return profile;
 }
 
 async function stepAuthentication(cfg: Partial<MoltbotConfig>): Promise<void> {
@@ -330,22 +379,32 @@ export async function runSecureSetup(): Promise<void> {
   try {
     await stepIntro();
 
+    // Step 1: Select security profile
+    const profile = await stepSelectProfile();
+
     // Load existing config or start fresh
-    const existingConfig = existsSync(join(homedir(), ".clancybot", "clancybot.json"))
+    const existingConfig = existsSync(join(homedir(), ".moltbot", "moltbot.json"))
       ? loadConfig()
       : {};
 
-    // Start with secure defaults
-    const cfg: Partial<MoltbotConfig> = {
-      ...getSecureDefaults(),
-      ...existingConfig,
-    };
+    // Apply profile
+    const cfg: Partial<MoltbotConfig> = applyProfile(profile, existingConfig);
 
-    // Run wizard steps
-    await stepAuthentication(cfg);
-    await stepChannelSecurity(cfg);
-    await stepSandbox(cfg);
-    await stepBrowser(cfg);
+    // Step 2: Customize profile (optional)
+    const customize = await confirm({
+      message: "Customize profile settings?",
+      initialValue: false,
+    });
+
+    if (customize) {
+      // Run wizard steps for customization
+      await stepAuthentication(cfg);
+      await stepChannelSecurity(cfg);
+      await stepSandbox(cfg);
+      await stepBrowser(cfg);
+    }
+
+    // Final checks
     const score = await stepFinalChecks(cfg);
 
     // Save config
@@ -355,21 +414,27 @@ export async function runSecureSetup(): Promise<void> {
     saveConfig(cfg as MoltbotConfig);
     s.stop("Configuration saved");
 
+    // Get profile name
+    const profileConfig = getAllProfiles().find((p) => p.id === profile)!;
+
     // Final message
     outro(
       bold(
         green(
-          `🎉 Setup Complete! Security Score: ${score}/100\n\n` +
+          `🎉 Setup Complete!\n\n` +
+            `Profile: ${profileConfig.name} (${profileConfig.badge})\n` +
+            `Security Score: ${score}/100\n` +
+            `Defense Layers: ${profileConfig.layers}/14\n\n` +
             `Next steps:\n` +
-            `  1. Start gateway: ${cyan("clancybot gateway run")}\n` +
-            `  2. Connect channels: ${cyan("clancybot channels add")}\n` +
-            `  3. View dashboard: ${cyan("http://localhost:18789/security")}\n\n` +
-            `${dim("Run")} ${cyan("clancybot security audit")} ${dim("anytime to check security.")}`,
+            `  1. Start gateway: ${cyan("moltbot gateway run")}\n` +
+            `  2. View security: ${cyan("moltbot profile show")}\n` +
+            `  3. Dashboard: ${cyan("http://localhost:18789/security")}\n\n` +
+            `${dim("Change profile anytime: ")}${cyan("moltbot profile select")}`,
         ),
       ),
     );
 
-    log.info("Secure setup completed", { score });
+    log.info("Secure setup completed", { profile: profileConfig.name, score });
   } catch (err) {
     log.error("Setup failed", err);
     outro(red("Setup cancelled or failed"));
