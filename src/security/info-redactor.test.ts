@@ -16,35 +16,35 @@ import {
 describe("InfoRedactor", () => {
   describe("redactTokens", () => {
     it("redacts OpenAI/Anthropic API keys", () => {
-      const text = "Your API key is sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz";
+      const text = "Your API key is sk-ant-FAKE-TEST-KEY-NOT-REAL";
       const redacted = redactTokens(text);
       expect(redacted).not.toContain("sk-ant");
       expect(redacted).toContain("[REDACTED_TOKEN]");
     });
 
     it("redacts GitHub tokens", () => {
-      const text = "GitHub PAT: ghp_1234567890abcdefghijklmnopqrstuvwxyz";
+      const text = "GitHub PAT: ghp-FAKE-TEST-TOKEN-NOT-REAL";
       const redacted = redactTokens(text);
       expect(redacted).not.toContain("ghp_");
       expect(redacted).toContain("[REDACTED_TOKEN]");
     });
 
     it("redacts AWS keys", () => {
-      const text = "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE";
+      const text = "AWS_ACCESS_KEY_ID=AKIA-FAKE-TEST-KEY";
       const redacted = redactTokens(text);
       expect(redacted).not.toContain("AKIA");
       expect(redacted).toContain("[REDACTED_TOKEN]");
     });
 
     it("redacts Slack tokens", () => {
-      const text = "Slack token: xoxb-1234567890-1234567890-abcdefghijklmnopqrstuvwx";
+      const text = "Slack token: xoxb-FAKE-TOKEN-FOR-TESTING-ONLY-NOT-REAL";
       const redacted = redactTokens(text);
       expect(redacted).not.toContain("xoxb-");
       expect(redacted).toContain("[REDACTED_TOKEN]");
     });
 
     it("redacts JWT tokens", () => {
-      const text = "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abc123";
+      const text = "Authorization: Bearer FAKE-JWT-TOKEN.FOR-TESTING.ONLY";
       const redacted = redactTokens(text);
       expect(redacted).not.toContain("eyJhbGciOi");
       expect(redacted).toContain("[REDACTED_TOKEN]");
@@ -241,7 +241,7 @@ MIIEpAIBAAKCAQEA1234567890
     it("redacts all types by default", () => {
       const text = `User: alice@example.com
 Password: secret123
-API Key: sk-ant-1234567890abcdefghijklmnopqrstuvwxyz
+API Key: sk-ant-FAKE-TEST-KEY-NOT-REAL
 File: /home/alice/.ssh/id_rsa
 IP: 192.168.1.100
 Card: 4532-1234-5678-9010`;
@@ -308,8 +308,8 @@ Card: 4532-1234-5678-9010`;
 
   describe("containsSensitiveInfo", () => {
     it("detects tokens", () => {
-      expect(containsSensitiveInfo("sk-ant-1234567890abcdefghijklmnopqrstuvwxyz")).toBe(true);
-      expect(containsSensitiveInfo("ghp_1234567890abcdefghijklmnopqrstuvwxyz")).toBe(true);
+      expect(containsSensitiveInfo("sk-ant-FAKE-TEST")).toBe(true);
+      expect(containsSensitiveInfo("ghp-FAKE-TEST")).toBe(true);
     });
 
     it("detects passwords", () => {
