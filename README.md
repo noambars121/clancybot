@@ -93,8 +93,7 @@ Transparency matters. This project demonstrates what's possible with AI-assisted
 - 🚨 [**LEGAL-DISCLAIMER.md**](LEGAL-DISCLAIMER.md) ← **START HERE**
 - 🛡️ [**SECURITY-FEATURES.md**](SECURITY-FEATURES.md) - Detailed breakdown
 - 📋 [SECURITY.md](SECURITY.md) - Security policy
-- 📊 [.planning/SECURITY-AUDIT-REPORT.md](.planning/SECURITY-AUDIT-REPORT.md) - AI audit
-- 🏆 [.planning/FINAL-COMPREHENSIVE-REPORT.md](.planning/FINAL-COMPREHENSIVE-REPORT.md) - Full summary
+- 📚 [docs/security/](docs/security/) - Security guides
 
 ---
 

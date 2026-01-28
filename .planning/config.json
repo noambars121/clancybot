@@ -1,8 +1,0 @@
-{
-  "project_name": "Pentagon Security Hardening",
-  "model_profile": "balanced",
-  "workflow": {
-    "verifier": true
-  },
-  "commit_planning_docs": true
-}

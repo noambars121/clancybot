@@ -351,8 +351,6 @@ clancybot setup-secure
 - [SECURITY.md](SECURITY.md) - Security policy
 - [docs/security/hardening-guide.md](docs/security/hardening-guide.md) - Hardening tips (AI-written)
 - [docs/security/breaking-changes-phase1.md](docs/security/breaking-changes-phase1.md) - Breaking changes
-- [.planning/SECURITY-AUDIT-REPORT.md](.planning/SECURITY-AUDIT-REPORT.md) - Full AI audit
-- [.planning/FINAL-COMPREHENSIVE-REPORT.md](.planning/FINAL-COMPREHENSIVE-REPORT.md) - Complete project summary
 
 ---
 
