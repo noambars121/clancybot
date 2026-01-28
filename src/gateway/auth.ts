@@ -3,6 +3,7 @@ import type { IncomingMessage } from "node:http";
 import type { GatewayAuthConfig, GatewayTailscaleMode } from "../config/config.js";
 import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infra/tailscale.js";
 import { isTrustedProxyAddress, parseForwardedForClientIp, resolveGatewayClientIp } from "./net.js";
+import { logAuthEvent } from "./auth-audit-log.js";
 export type ResolvedGatewayAuthMode = "token" | "password";
 
 export type ResolvedGatewayAuth = {
@@ -173,6 +174,15 @@ export function resolveGatewayAuth(params: {
   const env = params.env ?? process.env;
   const token = authConfig.token ?? env.CLAWDBOT_GATEWAY_TOKEN ?? undefined;
   const password = authConfig.password ?? env.CLAWDBOT_GATEWAY_PASSWORD ?? undefined;
+  
+  // Validate token if provided
+  if (token) {
+    const validation = validateGatewayAuthToken(token);
+    if (!validation.valid) {
+      throw new Error(`Invalid gateway token: ${validation.reason}`);
+    }
+  }
+  
   const mode: ResolvedGatewayAuth["mode"] = authConfig.mode ?? (password ? "password" : "token");
   const allowTailscale =
     authConfig.allowTailscale ?? (params.tailscaleMode === "serve" && mode !== "password");
@@ -206,6 +216,9 @@ export async function authorizeGatewayConnect(params: {
   const { auth, connectAuth, req, trustedProxies } = params;
   const tailscaleWhois = params.tailscaleWhois ?? readTailscaleWhoisIdentity;
   const localDirect = isLocalDirectRequest(req, trustedProxies);
+  const clientIp = req?.socket?.remoteAddress ?? 'unknown';
+
+  let result: GatewayAuthResult;
 
   if (auth.allowTailscale && !localDirect) {
     const tailscaleCheck = await resolveVerifiedTailscaleUser({
@@ -213,40 +226,64 @@ export async function authorizeGatewayConnect(params: {
       tailscaleWhois,
     });
     if (tailscaleCheck.ok) {
-      return {
+      result = {
         ok: true,
         method: "tailscale",
         user: tailscaleCheck.user.login,
       };
+    } else {
+      result = { ok: false, reason: tailscaleCheck.reason };
     }
-  }
-
-  if (auth.mode === "token") {
+  } else if (auth.mode === "token") {
     if (!auth.token) {
-      return { ok: false, reason: "token_missing_config" };
+      result = { ok: false, reason: "token_missing_config" };
+    } else if (!connectAuth?.token) {
+      result = { ok: false, reason: "token_missing" };
+    } else if (!safeEqual(connectAuth.token, auth.token)) {
+      result = { ok: false, reason: "token_mismatch" };
+    } else {
+      result = { ok: true, method: "token" };
     }
-    if (!connectAuth?.token) {
-      return { ok: false, reason: "token_missing" };
-    }
-    if (!safeEqual(connectAuth.token, auth.token)) {
-      return { ok: false, reason: "token_mismatch" };
-    }
-    return { ok: true, method: "token" };
-  }
-
-  if (auth.mode === "password") {
+  } else if (auth.mode === "password") {
     const password = connectAuth?.password;
     if (!auth.password) {
-      return { ok: false, reason: "password_missing_config" };
+      result = { ok: false, reason: "password_missing_config" };
+    } else if (!password) {
+      result = { ok: false, reason: "password_missing" };
+    } else if (!safeEqual(password, auth.password)) {
+      result = { ok: false, reason: "password_mismatch" };
+    } else {
+      result = { ok: true, method: "password" };
     }
-    if (!password) {
-      return { ok: false, reason: "password_missing" };
-    }
-    if (!safeEqual(password, auth.password)) {
-      return { ok: false, reason: "password_mismatch" };
-    }
-    return { ok: true, method: "password" };
+  } else {
+    result = { ok: false, reason: "unauthorized" };
   }
 
-  return { ok: false, reason: "unauthorized" };
+  // Log auth event (don't await to avoid blocking auth)
+  logAuthEvent({
+    timestamp: Date.now(),
+    clientIp,
+    method: result.method ?? (auth.mode === 'token' ? 'token' : 'password'),
+    success: result.ok,
+    reason: result.reason,
+    userId: result.user,
+  }).catch((error) => {
+    console.error('Failed to log auth event:', error);
+  });
+
+  return result;
+}
+
+export function validateGatewayAuthToken(token: string): { valid: boolean; reason?: string } {
+  if (!token || token.length < 32) {
+    return { valid: false, reason: 'Token must be at least 32 characters' };
+  }
+  
+  // Check entropy (at least 20 unique characters)
+  const uniqueChars = new Set(token).size;
+  if (uniqueChars < 20) {
+    return { valid: false, reason: 'Token must have higher entropy (at least 20 unique chars)' };
+  }
+  
+  return { valid: true };
 }

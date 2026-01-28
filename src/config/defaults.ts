@@ -393,3 +393,21 @@ export function applyCompactionDefaults(cfg: MoltbotConfig): MoltbotConfig {
 export function resetSessionDefaultsWarningForTests() {
   defaultWarnState = { warned: false };
 }
+
+export const DEFAULT_SANDBOX_CONFIG = {
+  mode: 'non-main' as const,
+  scope: 'session' as const,
+  workspaceAccess: 'none' as const,
+  docker: {
+    readOnlyRoot: true,
+    capDrop: ['ALL'],
+    network: 'none',
+    tmpfs: ['/tmp', '/var/tmp', '/run'],
+    securityOpt: ['no-new-privileges'],
+  },
+} as const;
+
+export const DEFAULT_CHANNEL_CONFIG = {
+  dmPolicy: 'pairing' as const,
+  groupPolicy: 'allowlist' as const,
+} as const;

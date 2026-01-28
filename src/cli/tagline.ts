@@ -1,4 +1,4 @@
-const DEFAULT_TAGLINE = "All your chats, one Moltbot.";
+const DEFAULT_TAGLINE = "Maximum security. Minimal setup.";
 
 const HOLIDAY_TAGLINES = {
   newYear:
@@ -23,7 +23,7 @@ const HOLIDAY_TAGLINES = {
 } as const;
 
 const TAGLINES: string[] = [
-  "Your terminal just grew claws—type something and let the bot pinch the busywork.",
+  "Pentagon-grade security, personal AI assistant.",
   "Welcome to the command line: where dreams compile and confidence segfaults.",
   'I run on caffeine, JSON5, and the audacity of "it worked on my machine."',
   "Gateway online—please keep hands, feet, and appendages inside the shell at all times.",
@@ -66,9 +66,9 @@ const TAGLINES: string[] = [
   "Because texting yourself reminders is so 2024.",
   "WhatsApp, but make it ✨engineering✨.",
   'Turning "I\'ll reply later" into "my bot replied instantly".',
-  "The only crab in your contacts you actually want to hear from. 🦞",
-  "Chat automation for people who peaked at IRC.",
-  "Because Siri wasn't answering at 3AM.",
+  "Secure by default. Fast by design.",
+  "All your channels, one secure bot.",
+  "AI assistant with maximum security built in.",
   "IPC, but it's your phone.",
   "The UNIX philosophy meets your DMs.",
   "curl for conversations.",

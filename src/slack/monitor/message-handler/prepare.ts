@@ -437,6 +437,11 @@ export async function prepareSlackMessage(params: {
     });
   }
 
+  // SECURITY: Sanitize sender name and group subject
+  const { sanitizeDisplayName, sanitizeGroupName } = await import("../../../security/prompt-injection-guard.js");
+  const safeSenderName = senderName ? sanitizeDisplayName(senderName) : undefined;
+  const safeGroupSubject = groupSubject ? sanitizeGroupName(groupSubject) : undefined;
+  
   const slackTo = isDirectMessage ? `user:${message.user}` : `channel:${message.channel}`;
 
   const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
@@ -444,8 +449,13 @@ export async function prepareSlackMessage(params: {
     .filter((entry): entry is string => Boolean(entry))
     .filter((entry, index, list) => list.indexOf(entry) === index)
     .join("\n");
+  
+  // SECURITY: Sanitize channel description to prevent prompt injection
+  const { sanitizeChannelTopic } = await import("../../../security/prompt-injection-guard.js");
+  const safeChannelDescription = channelDescription ? sanitizeChannelTopic(channelDescription) : null;
+  
   const systemPromptParts = [
-    channelDescription ? `Channel description: ${channelDescription}` : null,
+    safeChannelDescription ? `Channel description: ${safeChannelDescription}` : null,
     channelConfig?.systemPrompt?.trim() || null,
   ].filter((entry): entry is string => Boolean(entry));
   const groupSystemPrompt =
@@ -504,9 +514,9 @@ export async function prepareSlackMessage(params: {
     AccountId: route.accountId,
     ChatType: isDirectMessage ? "direct" : "channel",
     ConversationLabel: envelopeFrom,
-    GroupSubject: isRoomish ? roomLabel : undefined,
+    GroupSubject: isRoomish ? (safeGroupSubject ?? roomLabel) : undefined,
     GroupSystemPrompt: isRoomish ? groupSystemPrompt : undefined,
-    SenderName: senderName,
+    SenderName: safeSenderName ?? senderName,
     SenderId: senderId,
     Provider: "slack" as const,
     Surface: "slack" as const,

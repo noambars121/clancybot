@@ -4,6 +4,7 @@ import { loadConfig } from "../config/config.js";
 import { defaultRuntime } from "../runtime.js";
 import { runSecurityAudit } from "../security/audit.js";
 import { fixSecurityFootguns } from "../security/fix.js";
+import { migrateToPhase1 } from "../commands/security-migrate.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { isRich, theme } from "../terminal/theme.js";
 import { shortenHomeInString, shortenHomePath } from "../utils.js";
@@ -145,5 +146,13 @@ export function registerSecurityCli(program: Command) {
       render("info");
 
       defaultRuntime.log(lines.join("\n"));
+    });
+
+  security
+    .command("migrate")
+    .description("Migrate to Phase 1 security defaults")
+    .option("--dry-run", "Show changes without applying them", false)
+    .action(async (opts: { dryRun?: boolean }) => {
+      await migrateToPhase1(opts);
     });
 }

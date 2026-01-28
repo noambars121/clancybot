@@ -1,0 +1,118 @@
+{
+  "$schema": "https://molt.bot/schema.json",
+  "_comment": "Pentagon-Level Secure Configuration Template",
+  
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18789,
+    "auth": {
+      "mode": "token",
+      "token": "${MOLTBOT_GATEWAY_TOKEN}",
+      "allowTailscale": false
+    },
+    "tailscale": {
+      "mode": "serve",
+      "resetOnExit": true
+    },
+    "controlUi": {
+      "enabled": true
+    },
+    "trustedProxies": []
+  },
+  
+  "logging": {
+    "level": "info",
+    "redactSensitive": "tools",
+    "redactPatterns": [
+      "sk-[a-zA-Z0-9]{32,}",
+      "[0-9]{10,}:[A-Za-z0-9_-]{35}"
+    ]
+  },
+  
+  "session": {
+    "scope": "per-agent",
+    "dmScope": "per-channel-peer"
+  },
+  
+  "agents": {
+    "defaults": {
+      "workspace": "~/clawd",
+      "sandbox": {
+        "mode": "non-main",
+        "scope": "session",
+        "workspaceAccess": "none",
+        "docker": {
+          "image": "moltbot-sandbox:latest",
+          "readOnlyRoot": true,
+          "capDrop": ["ALL"],
+          "network": "none",
+          "tmpfs": ["/tmp", "/var/tmp", "/run"],
+          "memory": "512m",
+          "memorySwap": "512m",
+          "cpus": "1.0",
+          "pidsLimit": 100,
+          "securityOpt": ["no-new-privileges"]
+        },
+        "tools": {
+          "allow": [
+            "exec",
+            "process",
+            "read",
+            "write",
+            "edit",
+            "sessions_list",
+            "sessions_history",
+            "sessions_send"
+          ],
+          "deny": [
+            "browser",
+            "canvas",
+            "nodes",
+            "cron",
+            "gateway"
+          ]
+        }
+      }
+    }
+  },
+  
+  "channels": {
+    "defaults": {
+      "dmPolicy": "pairing",
+      "groupPolicy": "allowlist"
+    },
+    "telegram": {
+      "enabled": true,
+      "dm": {
+        "policy": "pairing"
+      }
+    },
+    "discord": {
+      "enabled": false,
+      "dm": {
+        "policy": "pairing",
+        "allowFrom": []
+      }
+    }
+  },
+  
+  "tools": {
+    "elevated": {
+      "enabled": false
+    },
+    "browser": {
+      "enabled": false
+    },
+    "canvas": {
+      "enabled": false
+    }
+  },
+  
+  "commands": {
+    "native": false,
+    "nativeSkills": false,
+    "text": true,
+    "useAccessGroups": true
+  }
+}

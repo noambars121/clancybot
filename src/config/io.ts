@@ -22,6 +22,8 @@ import {
   applySessionDefaults,
   applyTalkApiKey,
 } from "./defaults.js";
+import { validateChannelConfig } from "./validation.js";
+import { encryptSensitiveFields, decryptSensitiveFields } from "../security/secrets-encryption.js";
 import { VERSION } from "../version.js";
 import { MissingEnvVarError, resolveConfigEnvVars } from "./env-substitution.js";
 import { collectConfigEnvVars } from "./env-vars.js";
@@ -209,9 +211,12 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       }
       const raw = deps.fs.readFileSync(configPath, "utf-8");
       const parsed = deps.json5.parse(raw);
+      
+      // Phase 1: Decrypt sensitive fields after parsing
+      const decrypted = await decryptSensitiveFields(parsed);
 
       // Resolve $include directives before validation
-      const resolved = resolveConfigIncludes(parsed, configPath, {
+      const resolved = resolveConfigIncludes(decrypted, configPath, {
         readFile: (p) => deps.fs.readFileSync(p, "utf-8"),
         parseJson: (raw) => deps.json5.parse(raw),
       });
@@ -287,7 +292,12 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         });
       }
 
-      return applyConfigOverrides(cfg);
+      const finalConfig = applyConfigOverrides(cfg);
+      
+      // Phase 1: Validate channel config (throws on dmPolicy="open")
+      validateChannelConfig(finalConfig);
+      
+      return finalConfig;
     } catch (err) {
       if (err instanceof DuplicateAgentDirError) {
         deps.logger.error(err.message);
@@ -475,7 +485,12 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     }
     const dir = path.dirname(configPath);
     await deps.fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
-    const json = JSON.stringify(applyModelDefaults(stampConfigVersion(cfg)), null, 2)
+    
+    // Phase 1: Encrypt sensitive fields before writing
+    const toWrite = applyModelDefaults(stampConfigVersion(cfg));
+    const encrypted = await encryptSensitiveFields(toWrite);
+    
+    const json = JSON.stringify(encrypted, null, 2)
       .trimEnd()
       .concat("\n");
 

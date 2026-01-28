@@ -1,11 +1,11 @@
 ---
-summary: "Top-level overview of Moltbot, features, and purpose"
+summary: "Top-level overview of ClancyBot/Moltbot, features, and purpose"
 read_when:
-  - Introducing Moltbot to newcomers
+  - Introducing ClancyBot to newcomers
 ---
-# Moltbot 🦞
+# ClancyBot / Moltbot
 
-> *"EXFOLIATE! EXFOLIATE!"* — A space lobster, probably
+> *Maximum Security. Minimal Setup.*
 
 <p align="center">
   <img src="whatsapp-clawd.jpg" alt="Moltbot" width="420" />
@@ -25,7 +25,8 @@ read_when:
 </p>
 
 Moltbot bridges WhatsApp (via WhatsApp Web / Baileys), Telegram (Bot API / grammY), Discord (Bot API / channels.discord.js), and iMessage (imsg CLI) to coding agents like [Pi](https://github.com/badlogic/pi-mono). Plugins add Mattermost (Bot API + WebSocket) and more.
-Moltbot also powers [Clawd](https://clawd.me), the space‑lobster assistant.
+
+**ClancyBot** is a security-hardened fork with Pentagon-grade protections built in.
 
 ## Start here
 

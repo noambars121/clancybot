@@ -732,12 +732,17 @@ async function dispatchDiscordCommandInteraction(params: {
     ConversationLabel: conversationLabel,
     GroupSubject: isGuild ? interaction.guild?.name : undefined,
     GroupSystemPrompt: isGuild
-      ? (() => {
+      ? await (async () => {
           const channelTopic =
             channel && "topic" in channel ? (channel.topic ?? undefined) : undefined;
           const channelDescription = channelTopic?.trim();
+          
+          // SECURITY: Sanitize channel topic to prevent prompt injection
+          const { sanitizeChannelTopic } = await import("../../../security/prompt-injection-guard.js");
+          const safeChannelDescription = channelDescription ? sanitizeChannelTopic(channelDescription) : null;
+          
           const systemPromptParts = [
-            channelDescription ? `Channel topic: ${channelDescription}` : null,
+            safeChannelDescription ? `Channel topic: ${safeChannelDescription}` : null,
             channelConfig?.systemPrompt?.trim() || null,
           ].filter((entry): entry is string => Boolean(entry));
           return systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;

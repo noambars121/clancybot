@@ -7,6 +7,7 @@ import { readRegistry, updateRegistry } from "./registry.js";
 import { computeSandboxConfigHash } from "./config-hash.js";
 import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+import { analyzeShellCommand } from "../../infra/exec-approvals.js";
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
 
@@ -75,6 +76,36 @@ export async function dockerContainerState(name: string) {
   });
   if (result.code !== 0) return { exists: false, running: false };
   return { exists: true, running: result.stdout.trim() === "true" };
+}
+
+function validateSetupCommand(command: string): void {
+  if (!command || !command.trim()) {
+    return; // Empty command is OK
+  }
+  
+  const analysis = analyzeShellCommand(command);
+  if (!analysis.ok) {
+    throw new Error(
+      `Dangerous Docker setup command rejected: ${analysis.reason}\n` +
+      `Command: ${command}`
+    );
+  }
+  
+  // Additional restrictions for setup commands
+  const forbidden = ['curl', 'wget', 'git', 'apt', 'yum', 'dnf', 'pip', 'npm', 'gem', 'cargo'];
+  const commandLower = command.toLowerCase();
+  
+  for (const cmd of forbidden) {
+    // Use word boundary to avoid false positives
+    const regex = new RegExp(`\\b${cmd}\\b`, 'i');
+    if (regex.test(command)) {
+      throw new Error(
+        `Docker setup command cannot include network tools: ${cmd}\n` +
+        `Command: ${command}\n` +
+        `Reason: Setup commands run during container creation and should not fetch external content.`
+      );
+    }
+  }
 }
 
 function normalizeDockerLimit(value?: string | number) {
@@ -203,6 +234,7 @@ async function createSandboxContainer(params: {
   await execDocker(["start", name]);
 
   if (cfg.setupCommand?.trim()) {
+    validateSetupCommand(cfg.setupCommand);
     await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
   }
 }

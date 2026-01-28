@@ -1,52 +1,160 @@
-# Contributing to Moltbot
+# 🤝 Contributing to ClancyBot
 
-Welcome to the lobster tank! 🦞
+**⚠️ IMPORTANT:** ClancyBot is a **personal fork** of [Moltbot](https://github.com/moltbot/moltbot). 
 
-## Quick Links
-- **GitHub:** https://github.com/moltbot/moltbot
-- **Discord:** https://discord.gg/qkhbAGHRBT
-- **X/Twitter:** [@steipete](https://x.com/steipete) / [@moltbot](https://x.com/moltbot)
+---
 
-## Maintainers
+## Contributing to Moltbot (Upstream)
 
-- **Peter Steinberger** - Benevolent Dictator
-  - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
+**For core features, bug fixes, and general improvements**, please contribute to the original project:
 
-- **Shadow** - Discord + Slack subsystem
-  - GitHub: [@thewilloftheshadow](https://github.com/thewilloftheshadow) · X: [@4shad0wed](https://x.com/4shad0wed)
+- 🦞 **Moltbot GitHub:** [github.com/moltbot/moltbot](https://github.com/moltbot/moltbot)
+- 📖 **Moltbot Docs:** [docs.molt.bot](https://docs.molt.bot)
+- 🐦 **Moltbot Twitter:** [@moltbot](https://x.com/moltbot)
 
-- **Jos** - Telegram, API, Nix mode
-  - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
+The Moltbot team is professional, responsive, and welcomes contributions!
+
+---
+
+## Contributing to ClancyBot (This Fork)
+
+### What You Can Contribute
+
+ClancyBot accepts PRs for:
+
+- ✅ **Security improvements** — Additional hardening, vulnerability fixes
+- ✅ **Bug fixes** — Fixing issues specific to ClancyBot
+- ✅ **Documentation** — Improving security docs, guides, or disclaimers
+- ✅ **Testing** — Adding security tests or improving test coverage
+
+### What NOT to Contribute
+
+- ❌ **Core features** — Go to upstream Moltbot instead
+- ❌ **Channel support** — Contribute to Moltbot
+- ❌ **General improvements** — Contribute to Moltbot
+- ❌ **UI/UX changes** — Contribute to Moltbot (unless ClancyBot-specific)
+
+---
+
+## ⚠️ AI-Generated Codebase Warning
+
+**Before contributing, understand:**
+
+1. ❌ **100% of this codebase is AI-generated**
+2. ❌ **No professional developer has reviewed it**
+3. ❌ **There may be hidden bugs or vulnerabilities**
+4. ❌ **Future changes may also be AI-generated**
+
+**Your PR should:**
+- Be tested thoroughly
+- Not break existing functionality
+- Include security considerations
+- Follow the existing code style (even if AI-generated)
+
+---
 
 ## How to Contribute
-1. **Bugs & small fixes** → Open a PR!
-2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
-3. **Questions** → Discord #setup-help
 
-## Before You PR
-- Test locally with your Moltbot instance
-- Run linter: `npm run lint`
-- Keep PRs focused (one thing per PR)
-- Describe what & why
+### 1. Fork & Clone
 
-## AI/Vibe-Coded PRs Welcome! 🤖
+```bash
+git clone https://github.com/YOUR_USERNAME/clancybot.git
+cd clancybot
+```
 
-Built with Codex, Claude, or other AI tools? **Awesome - just mark it!**
+### 2. Install Dependencies
 
-Please include in your PR:
-- [ ] Mark as AI-assisted in the PR title or description
-- [ ] Note the degree of testing (untested / lightly tested / fully tested)
-- [ ] Include prompts or session logs if possible (super helpful!)
-- [ ] Confirm you understand what the code does
+```bash
+pnpm install
+```
 
-AI PRs are first-class citizens here. We just want transparency so reviewers know what to look for.
+### 3. Make Changes
 
-## Current Focus & Roadmap 🗺
+- Follow the existing code style
+- Add tests for new features
+- Update documentation
 
-We are currently prioritizing:
-- **Stability**: Fixing edge cases in channel connections (WhatsApp/Telegram).
-- **UX**: Improving the onboarding wizard and error messages.
-- **Skills**: Expanding the library of bundled skills and improving the Skill Creation developer experience.
-- **Performance**: Optimizing token usage and compaction logic.
+### 4. Test
 
-Check the [GitHub Issues](https://github.com/moltbot/moltbot/issues) for "good first issue" labels!
+```bash
+# Run linter
+pnpm lint
+
+# Run tests
+pnpm test
+
+# Build
+pnpm build
+```
+
+### 5. Submit PR
+
+- **Title:** Clear, concise description (e.g., "Security: Add XSS protection to webhook handler")
+- **Description:** Explain what and why
+- **Testing:** Describe how you tested the changes
+- **Breaking Changes:** Clearly note any breaking changes
+
+---
+
+## Code of Conduct
+
+### Be Respectful
+
+- Be kind and professional
+- Respect different viewpoints
+- Provide constructive feedback
+
+### Remember
+
+- This is a **personal AI-generated project**
+- The maintainer may reject PRs for any reason
+- Response times may be slow (this is a hobby project)
+- No guarantees on merging or maintaining
+
+---
+
+## Security Vulnerabilities
+
+### Reporting
+
+If you find a security vulnerability:
+
+1. **Do NOT open a public issue**
+2. Email: (contact info in profile)
+3. Include:
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
+
+### Expectations
+
+- ⚠️ No bug bounty program
+- ⚠️ No guaranteed response time
+- ⚠️ No SLA or support commitment
+- ⚠️ This is a personal project
+
+---
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the same **MIT License** as the project.
+
+---
+
+## Questions?
+
+**For ClancyBot-specific questions:**
+- Open a GitHub Discussion
+- File an issue (non-urgent)
+
+**For Moltbot questions:**
+- Visit [docs.molt.bot](https://docs.molt.bot)
+- Check the [Moltbot repo](https://github.com/moltbot/moltbot)
+
+---
+
+<p align="center">
+  <strong>Thank you for considering contributing!</strong><br>
+  <sub>But remember: this is AI-generated code. Proceed with caution.</sub>
+</p>

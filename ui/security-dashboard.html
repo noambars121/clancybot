@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moltbot Security Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      opacity: 0.8;
+      font-size: 1rem;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score-display {
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    .score-value {
+      font-size: 4rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .score-badge {
+      font-size: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .score-grade {
+      font-size: 2rem;
+      opacity: 0.7;
+      margin-top: 10px;
+    }
+
+    .checks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .check-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .check-icon {
+      font-size: 1.5rem;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .check-label {
+      flex: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    .events-list {
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .event-item {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .event-icon {
+      font-size: 1.2rem;
+      min-width: 25px;
+    }
+
+    .event-content {
+      flex: 1;
+    }
+
+    .event-type {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .event-time {
+      opacity: 0.6;
+      font-size: 0.85rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      opacity: 0.7;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .refresh-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔒 Moltbot Security Dashboard</h1>
+      <div class="subtitle">Real-time security monitoring & Pentagon-level protection</div>
+    </header>
+
+    <div class="dashboard" id="dashboard">
+      <div class="card">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading security data...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const [scoreRes, statsRes, eventsRes] = await Promise.all([
+          fetch('/security/score'),
+          fetch('/security/stats'),
+          fetch('/security/events?limit=20'),
+        ]);
+
+        const score = await scoreRes.json();
+        const stats = await statsRes.json();
+        const events = await eventsRes.json();
+
+        renderDashboard(score, stats, events);
+      } catch (err) {
+        console.error('Failed to fetch security data:', err);
+        document.getElementById('dashboard').innerHTML = `
+          <div class="card full-width">
+            <div style="text-align: center; padding: 40px;">
+              <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
+              <h2>Failed to load security data</h2>
+              <p style="opacity: 0.8; margin-top: 10px;">Make sure the gateway is running.</p>
+              <button class="refresh-btn" onclick="fetchData()">Retry</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderDashboard(score, stats, events) {
+      const dashboard = document.getElementById('dashboard');
+      
+      dashboard.innerHTML = `
+        <!-- Security Score -->
+        <div class="card">
+          <h2>🏆 Security Score</h2>
+          <div class="score-display">
+            <span class="score-value" style="color: ${getScoreColor(score.score)}">${score.score}/100</span>
+            <div class="score-badge">${score.badge}</div>
+            <div class="score-grade">Grade: ${score.grade}</div>
+          </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card">
+          <h2>📊 Statistics</h2>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value" style="color: #4ade80">${stats.events.success || 0}</span>
+              <div class="stat-label">Success</div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" style="color: #f87171">${stats.events.failure || 0}</span>
+              <div class="stat-label">Failures</div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" style="color: #60a5fa">${stats.events.auth || 0}</span>
+              <div class="stat-label">Auth Events</div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" style="color: #fbbf24">${stats.events.tool || 0}</span>
+              <div class="stat-label">Tool Uses</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Checks -->
+        <div class="card full-width">
+          <h2>✅ Security Checks</h2>
+          <div class="checks-list">
+            ${score.checks.map(check => `
+              <div class="check-item">
+                <div class="check-icon">${check.passed ? '✅' : '❌'}</div>
+                <div class="check-label">
+                  <strong>${check.label}</strong>
+                  ${check.recommendation ? `<div style="opacity: 0.7; font-size: 0.9rem; margin-top: 4px;">${check.recommendation}</div>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Recent Events -->
+        <div class="card full-width">
+          <h2>📝 Recent Security Events</h2>
+          <div class="events-list">
+            ${events.events.length > 0 ? events.events.map(event => `
+              <div class="event-item">
+                <div class="event-icon">${getEventIcon(event.type, event.success)}</div>
+                <div class="event-content">
+                  <div class="event-type">${event.action}</div>
+                  <div class="event-time">${formatTime(event.timestamp)} • ${event.success ? 'Success' : 'Failed'}</div>
+                </div>
+              </div>
+            `).join('') : '<div style="text-align: center; opacity: 0.7; padding: 20px;">No events recorded yet</div>'}
+          </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <div class="card full-width">
+          <button class="refresh-btn" onclick="fetchData()">🔄 Refresh Data</button>
+        </div>
+      `;
+    }
+
+    function getScoreColor(score) {
+      if (score >= 90) return '#4ade80';
+      if (score >= 70) return '#fbbf24';
+      return '#f87171';
+    }
+
+    function getEventIcon(type, success) {
+      if (!success) return '❌';
+      const icons = {
+        auth: '🔐',
+        tool: '🔧',
+        file: '📁',
+        network: '🌐',
+        config: '⚙️',
+        access: '🚪',
+      };
+      return icons[type] || '📋';
+    }
+
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+
+      if (diff < 60) return `${diff}s ago`;
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      return date.toLocaleString();
+    }
+
+    // Auto-refresh every 30 seconds
+    fetchData();
+    setInterval(fetchData, 30000);
+  </script>
+</body>
+</html>

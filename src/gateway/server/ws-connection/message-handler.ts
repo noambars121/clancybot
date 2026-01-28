@@ -24,6 +24,7 @@ import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
 import type { ResolvedGatewayAuth } from "../../auth.js";
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
+import { AuthRateLimiter } from "../../rate-limiter.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
@@ -59,6 +60,9 @@ import type { GatewayWsClient } from "../ws-types.js";
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 const DEVICE_SIGNATURE_SKEW_MS = 10 * 60 * 1000;
+
+// Global rate limiter instance (5 attempts per 5 minutes per IP)
+const globalRateLimiter = new AuthRateLimiter();
 
 function resolveHostName(hostHeader?: string): string {
   const host = (hostHeader ?? "").trim().toLowerCase();
@@ -564,6 +568,30 @@ export function attachGatewayWsMessageHandler(params: {
           }
         }
 
+        // Rate limit check before authentication
+        const rateLimitResult = globalRateLimiter.checkLimit(clientIp);
+        if (!rateLimitResult.allowed) {
+          setHandshakeState("failed");
+          logWsControl.warn(
+            `rate limit exceeded conn=${connId} remote=${remoteAddr ?? "?"} client=${clientLabel} retry_after=${rateLimitResult.retryAfterSeconds}s`,
+          );
+          setCloseCause("rate-limit", {
+            retryAfterSeconds: rateLimitResult.retryAfterSeconds,
+            client: connectParams.client.id,
+          });
+          send({
+            type: "res",
+            id: frame.id,
+            ok: false,
+            error: errorShape(
+              ErrorCodes.RATE_LIMITED,
+              `too many auth attempts. retry in ${rateLimitResult.retryAfterSeconds}s`,
+            ),
+          });
+          close(1008, `rate limit exceeded. retry in ${rateLimitResult.retryAfterSeconds}s`);
+          return;
+        }
+
         const authResult = await authorizeGatewayConnect({
           auth: resolvedAuth,
           connectAuth: connectParams.auth,
@@ -813,6 +841,10 @@ export function attachGatewayWsMessageHandler(params: {
         };
 
         clearHandshakeTimer();
+        
+        // Record successful auth - resets rate limit for this IP
+        globalRateLimiter.recordSuccess(clientIp);
+        
         const nextClient: GatewayWsClient = {
           socket,
           connect: connectParams,

@@ -39,8 +39,8 @@ export function formatCliBannerLine(version: string, options: BannerOptions = {}
   const tagline = pickTagline(options);
   const rich = options.richTty ?? isRich();
   const cliName = resolveCliName(options.argv ?? process.argv, options.env);
-  const title = cliName === "moltbot" ? "🦞 Moltbot" : "🦞 Moltbot";
-  const prefix = "🦞 ";
+  const title = cliName === "clancybot" ? "🎭 ClancyBot" : "🦞 Moltbot";
+  const prefix = cliName === "clancybot" ? "🎭 " : "🦞 ";
   const columns = options.columns ?? process.stdout.columns ?? 120;
   const plainFullLine = `${title} ${version} (${commitLabel}) — ${tagline}`;
   const fitsOnOneLine = visibleWidth(plainFullLine) <= columns;
@@ -64,14 +64,41 @@ export function formatCliBannerLine(version: string, options: BannerOptions = {}
   return `${line1}\n${line2}`;
 }
 
-const LOBSTER_ASCII = [
-  "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
-  "██░▄▀▄░██░▄▄▄░██░████▄▄░▄▄██░▄▄▀██░▄▄▄░█▄▄░▄▄██",
-  "██░█░█░██░███░██░██████░████░▄▄▀██░███░███░████",
-  "██░███░██░▀▀▀░██░▀▀░███░████░▀▀░██░▀▀▀░███░████",
-  "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
-  "               🦞 FRESH DAILY 🦞               ",
+const CLANCY_ASCII = [
+  "                             ++++++                             ",
+  "                         ##++**++**++##                         ",
+  "                       ####++**++*+++####                       ",
+  "                      #####+***++**++#####                      ",
+  "                     ######++**++**++######                     ",
+  "                    *######+++*++**++######*                    ",
+  "                    #######+***++**++#######                    ",
+  "                    ##########*++**#########                    ",
+  "                    ####    +######+    ####                    ",
+  "                    ####*   *######*   *####                    ",
+  "                    #########**++**#########                    ",
+  "                    *######++**++**++######*                    ",
+  "                     *#####++**++**++#####*                     ",
+  "                      #####+***++*+++#####                      ",
+  "                       ####++**++**++#####                      ",
+  "                        ###++**++**++###                        ",
+  "                       ####++**++**++####                       ",
+  "                       ####=++*++*++=####                       ",
+  "                      ########=  =########                      ",
+  "                     #####################*                     ",
+  "                      ####################                      ",
+  "                        ################                        ",
+  "                           *########*                           ",
+  "",
+  " ██████ ██       █████  ███    ██  ██████ ██    ██ ██████   ██████  ████████ ",
+  "██      ██      ██   ██ ████   ██ ██       ██  ██  ██   ██ ██    ██    ██    ",
+  "██      ██      ███████ ██ ██  ██ ██        ████   ██████  ██    ██    ██    ",
+  "██      ██      ██   ██ ██  ██ ██ ██         ██    ██   ██ ██    ██    ██    ",
+  " ██████ ███████ ██   ██ ██   ████  ██████    ██    ██████   ██████     ██    ",
+  "",
+  "                      🎭 SECURE BY DEFAULT 🎭                      ",
 ];
+
+const LOBSTER_ASCII = CLANCY_ASCII; // Backward compatibility
 
 export function formatCliBannerArt(options: BannerOptions = {}): string {
   const rich = options.richTty ?? isRich();
@@ -85,14 +112,29 @@ export function formatCliBannerArt(options: BannerOptions = {}): string {
   };
 
   const colored = LOBSTER_ASCII.map((line) => {
-    if (line.includes("FRESH DAILY")) {
+    // Handle tagline row
+    if (line.includes("SECURE BY DEFAULT") || line.includes("FRESH DAILY")) {
+      const emoji = line.includes("🎭") ? "🎭" : "🦞";
+      const text = line.includes("SECURE BY DEFAULT") ? " SECURE BY DEFAULT " : " FRESH DAILY ";
+      // Calculate padding based on line length and content
+      const totalLen = line.length;
+      const contentLen = emoji.length + text.length + emoji.length;
+      const paddingLen = Math.floor((totalLen - contentLen) / 2);
+      const padding = " ".repeat(Math.max(0, paddingLen));
       return (
-        theme.muted("              ") +
-        theme.accent("🦞") +
-        theme.info(" FRESH DAILY ") +
-        theme.accent("🦞")
+        theme.muted(padding) +
+        theme.accent(emoji) +
+        theme.info(text) +
+        theme.accent(emoji)
       );
     }
+    // Handle "CLANCYBOT" ASCII text rows (with █ blocks)
+    if (line.includes("█")) {
+      return splitGraphemes(line)
+        .map((char) => (char === "█" ? theme.accent(char) : theme.muted(char)))
+        .join("");
+    }
+    // Handle mask art rows (with #+*= chars) and empty lines
     return splitGraphemes(line).map(colorChar).join("");
   });
 

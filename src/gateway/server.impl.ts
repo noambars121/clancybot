@@ -5,6 +5,7 @@ import type { CanvasHostServer } from "../canvas-host/server.js";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { formatCliCommand } from "../cli/command-format.js";
+import { enforceSecurePermissions } from "../security/permission-enforcer.js";
 import {
   CONFIG_PATH,
   isNixMode,
@@ -158,6 +159,17 @@ export async function startGatewayServer(
     key: "CLAWDBOT_RAW_STREAM_PATH",
     description: "raw stream log path override",
   });
+
+  // Phase 1: Enforce secure file permissions early in boot
+  try {
+    const fixed = await enforceSecurePermissions();
+    if (fixed > 0) {
+      log.info(`gateway: secured ${fixed} file system paths`);
+    }
+  } catch (error) {
+    log.warn(`gateway: failed to enforce file permissions: ${String(error)}`);
+    // Don't fail boot on permission errors
+  }
 
   let configSnapshot = await readConfigFileSnapshot();
   if (configSnapshot.legacyIssues.length > 0) {

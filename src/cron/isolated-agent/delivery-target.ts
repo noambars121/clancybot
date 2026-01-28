@@ -68,7 +68,19 @@ export async function resolveDeliveryTarget(
   const mode = resolved.mode as "explicit" | "implicit";
   const toCandidate = resolved.to;
 
+  // PHASE 4 FIX: Don't silently fall back to DEFAULT_CHAT_CHANNEL
+  // This causes cron jobs to be delivered to wrong channel (e.g. Discord → WhatsApp)
+  // GitHub Issue #3333
   if (!toCandidate) {
+    // Log warning if we fell back to default channel
+    if (!resolved.channel && !fallbackChannel && channel === DEFAULT_CHAT_CHANNEL) {
+      const error = new Error(
+        `Cron delivery: no target found, falling back to ${DEFAULT_CHAT_CHANNEL}. ` +
+        `Consider specifying explicit channel and to in job payload. ` +
+        `Session: ${mainSessionKey}, Requested: ${requestedChannel}`,
+      );
+      return { channel, to: undefined, accountId: resolved.accountId, mode, error };
+    }
     return { channel, to: undefined, accountId: resolved.accountId, mode };
   }
 

@@ -22,6 +22,7 @@ import type {
   SandboxPruneConfig,
   SandboxScope,
 } from "./types.js";
+import { DEFAULT_SANDBOX_CONFIG } from "../../config/defaults.js";
 
 export function resolveSandboxScope(params: {
   scope?: SandboxScope;
@@ -139,7 +140,7 @@ export function resolveSandboxConfigForAgent(cfg?: MoltbotConfig, agentId?: stri
   const toolPolicy = resolveSandboxToolPolicyForAgent(cfg, agentId);
 
   return {
-    mode: agentSandbox?.mode ?? agent?.mode ?? "off",
+    mode: agentSandbox?.mode ?? agent?.mode ?? DEFAULT_SANDBOX_CONFIG.mode,
     scope,
     workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "none",
     workspaceRoot:

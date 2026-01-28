@@ -324,10 +324,11 @@ function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.insecure_auth",
       severity: "critical",
-      title: "Control UI allows insecure HTTP auth",
+      title: "DEPRECATED: Control UI allows insecure HTTP auth",
       detail:
-        "gateway.controlUi.allowInsecureAuth=true allows token-only auth over HTTP and skips device identity.",
-      remediation: "Disable it or switch to HTTPS (Tailscale Serve) or localhost.",
+        "gateway.controlUi.allowInsecureAuth=true is DEPRECATED and will be removed in Phase 2. " +
+        "This flag allows token-only auth over HTTP and skips device identity.",
+      remediation: "Remove this flag immediately. Use HTTPS (Tailscale Serve) or localhost only.",
     });
   }
 
@@ -335,10 +336,11 @@ function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.device_auth_disabled",
       severity: "critical",
-      title: "DANGEROUS: Control UI device auth disabled",
+      title: "DEPRECATED: DANGEROUS - Control UI device auth disabled",
       detail:
-        "gateway.controlUi.dangerouslyDisableDeviceAuth=true disables device identity checks for the Control UI.",
-      remediation: "Disable it unless you are in a short-lived break-glass scenario.",
+        "gateway.controlUi.dangerouslyDisableDeviceAuth=true is DEPRECATED and will be removed in Phase 2. " +
+        "This completely disables device identity checks for the Control UI.",
+      remediation: "Remove this flag immediately unless you are in a short-lived break-glass scenario.",
     });
   }
 
@@ -482,6 +484,22 @@ async function collectChannelSecurityFindings(params: {
       .filter(Boolean);
     const allowCount = Array.from(new Set([...normalizedCfg, ...normalizedStore])).length;
     const isMultiUserDm = hasWildcard || allowCount > 1;
+
+    // Phase 1: Enhanced wildcard warning
+    if (hasWildcard) {
+      findings.push({
+        checkId: `channels.${input.provider}.allowlist.wildcard`,
+        severity: "critical",
+        title: `${input.label} allowlist contains wildcard (*)`,
+        detail:
+          `Wildcard (*) in allowlist effectively makes your bot public on ${input.label}. ` +
+          `Anyone on this channel can access your bot without approval. ` +
+          `This is equivalent to dmPolicy="open" which has been removed for security.`,
+        remediation:
+          `Remove "*" from the allowlist immediately. Use explicit user IDs/usernames only. ` +
+          `For new users, use the pairing flow: moltbot pairing approve ${input.provider} <code>`,
+      });
+    }
 
     if (input.dmPolicy === "open") {
       const allowFromKey = `${input.allowFromPath}allowFrom`;
@@ -929,4 +947,34 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
 
   const summary = countBySeverity(findings);
   return { ts: Date.now(), summary, findings, deep };
+}
+
+export function calculateSecurityScore(report: SecurityAuditReport): number {
+  let score = 100;
+  
+  // Deduct points based on severity
+  score -= report.summary.critical * 20;
+  score -= report.summary.warn * 5;
+  score -= report.summary.info * 1;
+  
+  return Math.max(0, score);
+}
+
+export function getSecurityRating(score: number): string {
+  if (score >= 90) return 'EXCELLENT';
+  if (score >= 80) return 'GOOD';
+  if (score >= 70) return 'ACCEPTABLE';
+  if (score >= 50) return 'NEEDS IMPROVEMENT';
+  return 'CRITICAL';
+}
+
+export type SecurityAuditReportWithScore = SecurityAuditReport & {
+  score: number;
+  rating: string;
+};
+
+export function addScoreToReport(report: SecurityAuditReport): SecurityAuditReportWithScore {
+  const score = calculateSecurityScore(report);
+  const rating = getSecurityRating(score);
+  return { ...report, score, rating };
 }

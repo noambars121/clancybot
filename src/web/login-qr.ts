@@ -36,7 +36,8 @@ type ActiveLogin = {
   verbose: boolean;
 };
 
-const ACTIVE_LOGIN_TTL_MS = 3 * 60_000;
+// PHASE 4 FIX: Increased TTL from 3min to 5min to match new QR timeout
+const ACTIVE_LOGIN_TTL_MS = 5 * 60_000; // 5 minutes
 const activeLogins = new Map<string, ActiveLogin>();
 
 function closeSocket(sock: WaSocket) {
@@ -138,11 +139,13 @@ export async function startWebLoginWithQr(
     rejectQr = reject;
   });
 
+  // PHASE 4 FIX: Extended QR timeout from 30s to 120s (user feedback)
+  // Users reported QR codes expiring too quickly
   const qrTimer = setTimeout(
     () => {
       rejectQr?.(new Error("Timed out waiting for WhatsApp QR"));
     },
-    Math.max(opts.timeoutMs ?? 30_000, 5000),
+    Math.max(opts.timeoutMs ?? 120_000, 5000), // 120s = 2 minutes
   );
 
   let sock: WaSocket;

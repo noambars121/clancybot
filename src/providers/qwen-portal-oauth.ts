@@ -1,13 +1,49 @@
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { formatCliCommand } from "../cli/command-format.js";
+import { getOAuthTokenManager, type OAuthToken } from "./oauth-manager.js";
 
 const QWEN_OAUTH_BASE_URL = "https://chat.qwen.ai";
 const QWEN_OAUTH_TOKEN_ENDPOINT = `${QWEN_OAUTH_BASE_URL}/api/v1/oauth2/token`;
 const QWEN_OAUTH_CLIENT_ID = "f0304373b74a44d2b584a3fb70ca9e56";
 
+/**
+ * Refresh Qwen OAuth credentials with race condition protection
+ * PHASE 4 FIX: Uses OAuth manager to prevent token conflicts (GitHub #2036)
+ */
 export async function refreshQwenPortalCredentials(
   credentials: OAuthCredentials,
 ): Promise<OAuthCredentials> {
+  const manager = getOAuthTokenManager();
+  
+  // Convert to OAuthToken format
+  const token: OAuthToken = {
+    access: credentials.access ?? "",
+    refresh: credentials.refresh,
+    expires: credentials.expires,
+    provider: "qwen-portal",
+  };
+  
+  // Use manager to coordinate refresh
+  const result = await manager.getToken(token, refreshQwenInternal);
+  
+  // Convert back to OAuthCredentials
+  return {
+    ...credentials,
+    access: result.token.access,
+    refresh: result.token.refresh,
+    expires: result.token.expires,
+  };
+}
+
+/**
+ * Internal refresh function (called by OAuth manager)
+ */
+async function refreshQwenInternal(token: OAuthToken): Promise<OAuthToken> {
+  const credentials: OAuthCredentials = {
+    access: token.access,
+    refresh: token.refresh,
+    expires: token.expires,
+  };
   if (!credentials.refresh?.trim()) {
     throw new Error("Qwen OAuth refresh token missing; re-authenticate.");
   }
@@ -45,10 +81,11 @@ export async function refreshQwenPortalCredentials(
     throw new Error("Qwen OAuth refresh response missing access token.");
   }
 
+  // Return as OAuthToken
   return {
-    ...credentials,
     access: payload.access_token,
     refresh: payload.refresh_token || credentials.refresh,
     expires: Date.now() + payload.expires_in * 1000,
+    provider: token.provider,
   };
 }

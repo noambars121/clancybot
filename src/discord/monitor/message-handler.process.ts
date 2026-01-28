@@ -140,10 +140,21 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     Boolean(threadChannelId && isForumParent && forumParentSlug) && message.id === threadChannelId;
   const forumContextLine = isForumStarter ? `[Forum parent: #${forumParentSlug}]` : null;
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
-  const groupSubject = isDirectMessage ? undefined : groupChannel;
+  
+  // SECURITY: Sanitize group subject and sender name to prevent prompt injection
+  const { sanitizeGroupName, sanitizeDisplayName } = await import("../../../security/prompt-injection-guard.js");
+  const safeGroupSubject = groupChannel ? sanitizeGroupName(groupChannel) : undefined;
+  const safeSenderDisplay = senderDisplay ? sanitizeDisplayName(senderDisplay) : undefined;
+  
+  const groupSubject = isDirectMessage ? undefined : safeGroupSubject;
   const channelDescription = channelInfo?.topic?.trim();
+  
+  // SECURITY: Sanitize channel topic to prevent prompt injection
+  const { sanitizeChannelTopic } = await import("../../../security/prompt-injection-guard.js");
+  const safeChannelDescription = channelDescription ? sanitizeChannelTopic(channelDescription) : null;
+  
   const systemPromptParts = [
-    channelDescription ? `Channel topic: ${channelDescription}` : null,
+    safeChannelDescription ? `Channel topic: ${safeChannelDescription}` : null,
     channelConfig?.systemPrompt?.trim() || null,
   ].filter((entry): entry is string => Boolean(entry));
   const groupSystemPrompt =
@@ -272,7 +283,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     AccountId: route.accountId,
     ChatType: isDirectMessage ? "direct" : "channel",
     ConversationLabel: fromLabel,
-    SenderName: data.member?.nickname ?? author.globalName ?? author.username,
+    SenderName: safeSenderDisplay ?? (data.member?.nickname ?? author.globalName ?? author.username),
     SenderId: author.id,
     SenderUsername: author.username,
     SenderTag: formatDiscordUserTag(author),

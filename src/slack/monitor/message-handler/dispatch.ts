@@ -144,6 +144,17 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   const anyReplyDelivered = queuedFinal || (counts.block ?? 0) > 0 || (counts.final ?? 0) > 0;
 
   if (!anyReplyDelivered) {
+    // PHASE 4 FIX: Log when ACK was sent but no reply delivered (GitHub #3327)
+    // This helps debug "👀 reaction but no response" issues
+    if (prepared.ackReactionPromise && prepared.isDirectMessage) {
+      runtime.error?.(
+        danger(
+          `slack dm: ACK reaction sent but no reply delivered (channel=${message.channel}, ` +
+          `user=${message.user}, counts=${JSON.stringify(counts)})`
+        )
+      );
+    }
+    
     if (prepared.isRoomish) {
       clearHistoryEntriesIfEnabled({
         historyMap: ctx.channelHistories,

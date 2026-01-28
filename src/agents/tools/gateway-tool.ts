@@ -9,9 +9,13 @@ import {
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
+import { getChildLogger } from "../../logging/logger.js";
 import { stringEnum } from "../schema/typebox.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
+import { pruneToolResponse, formatPruningStats } from "./response-pruning.js";
+
+const log = getChildLogger("gateway-tool");
 
 function resolveBaseHashFromSnapshot(snapshot: unknown): string | undefined {
   if (!snapshot || typeof snapshot !== "object") return undefined;
@@ -163,11 +167,25 @@ export function createGatewayTool(opts?: {
 
       if (action === "config.get") {
         const result = await callGatewayTool("config.get", gatewayOpts, {});
-        return jsonResult({ ok: true, result });
+        
+        // PHASE 3 FIX: Prune large responses to prevent session bloat (GitHub #1808)
+        const { pruned, stats } = pruneToolResponse("gateway", { ok: true, result });
+        if (stats.wasPruned) {
+          log.debug(`gateway config.get pruned: ${formatPruningStats(stats)}`);
+        }
+        
+        return jsonResult(pruned);
       }
       if (action === "config.schema") {
         const result = await callGatewayTool("config.schema", gatewayOpts, {});
-        return jsonResult({ ok: true, result });
+        
+        // PHASE 3 FIX: CRITICAL - config.schema returns 396KB+ JSON!
+        // This is the root cause of session file bloat (GitHub #1808)
+        // Replace massive schema with summary to prevent session death
+        const { pruned, stats } = pruneToolResponse("gateway", { ok: true, result });
+        log.info(`gateway config.schema pruned: ${formatPruningStats(stats)}`);
+        
+        return jsonResult(pruned);
       }
       if (action === "config.apply") {
         const raw = readStringParam(params, "raw", { required: true });

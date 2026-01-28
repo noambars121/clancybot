@@ -437,8 +437,14 @@ export const registerTelegramNativeCommands = ({
             groupConfig?.systemPrompt?.trim() || null,
             topicConfig?.systemPrompt?.trim() || null,
           ].filter((entry): entry is string => Boolean(entry));
+          // SECURITY: Sanitize topic system prompts to prevent prompt injection
+          const { sanitizeForPrompt } = await import("../../security/prompt-injection-guard.js");
+          const safeTopicPrompt = topicConfig?.systemPrompt?.trim()
+            ? sanitizeForPrompt(topicConfig.systemPrompt.trim(), { maxLength: 2000 })
+            : null;
+          
           const groupSystemPrompt =
-            systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+            safeTopicPrompt || undefined;
           const conversationLabel = isGroup
             ? msg.chat.title
               ? `${msg.chat.title} id:${chatId}`

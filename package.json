@@ -1,7 +1,7 @@
 {
-  "name": "moltbot",
+  "name": "clancybot",
   "version": "2026.1.27-beta.1",
-  "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
+  "description": "ClancyBot - Pentagon-grade secure AI assistant. 100% vibe coded. Based on Moltbot.",
   "type": "module",
   "main": "dist/index.js",
   "exports": {
@@ -11,6 +11,7 @@
     "./cli-entry": "./moltbot.mjs"
   },
   "bin": {
+    "clancybot": "./moltbot.mjs",
     "moltbot": "./moltbot.mjs",
     "clawdbot": "./moltbot.mjs"
   },
@@ -146,9 +147,14 @@
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["clancy", "twenty-one-pilots", "ai-bot", "assistant", "vibe-coded"],
+  "author": "Noam <https://github.com/noambars121> (ClancyBot modifications, based on Moltbot by Peter Steinberger)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noambars121/clancybot.git"
+  },
+  "homepage": "https://github.com/noambars121/clancybot",
   "engines": {
     "node": ">=22.12.0"
   },
