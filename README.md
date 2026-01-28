@@ -88,6 +88,56 @@ Transparency matters. This project demonstrates what's possible with AI-assisted
 - ✅ **194** Security Tests Passing (AI-written tests)
 - ⚡ **5 min** Setup (AI wizard)
 
+---
+
+## 🎯 Security Profiles (NEW!)
+
+**Choose your security level in one command!**
+
+ClancyBot now includes 3 pre-configured security profiles:
+
+### 🔥 Maximum (Pentagon++++)
+- **Score:** 100/100 | **Layers:** 14/14
+- ✅ Docker: **Required**
+- ✅ Encryption: **Required**
+- ✅ Skills: **Strict** (only signed)
+- ✅ Monitoring: **Full** (canaries + red team)
+- **Use for:** Production, business, sensitive data
+
+### ⚖️ Balanced (Pentagon+++) [RECOMMENDED]
+- **Score:** 95/100 | **Layers:** 12/14
+- 🔄 Docker: **Auto** (if available)
+- 🔄 Encryption: **Prompt** on first run
+- ⚠️ Skills: **Warn** (unsigned with approval)
+- ✅ Monitoring: **Standard** (canaries + audit)
+- **Use for:** Personal use, most users
+
+### 🔧 Development (Pentagon)
+- **Score:** 60/100 | **Layers:** 4/14
+- ❌ Docker: **Off** (native)
+- ❌ Encryption: **Off** (plaintext)
+- ✅ Skills: **Permissive** (all allowed)
+- ⚠️ Network: **Warn** only
+- **Use for:** Local development ONLY (not production!)
+
+### Profile Commands
+
+```bash
+# Select a profile (interactive)
+clancybot profile select balanced
+
+# Show current profile
+clancybot profile show
+
+# List all profiles
+clancybot profile list
+
+# Compare profiles
+clancybot profile compare balanced maximum
+```
+
+**Result:** From 60/100 average to 95/100 automatic! 🎉
+
 ### Security Documentation (All AI-Written)
 
 - 🚨 [**LEGAL-DISCLAIMER.md**](LEGAL-DISCLAIMER.md) ← **START HERE**
@@ -105,17 +155,22 @@ Transparency matters. This project demonstrates what's possible with AI-assisted
 # Install globally
 npm install -g clancybot@latest
 
-# Run secure setup wizard
+# Run secure setup wizard (with profile selection)
 clancybot setup --secure
+
+# Or select a profile directly
+clancybot profile select balanced
 
 # Start the gateway
 clancybot gateway run --bind loopback --port 18789
 ```
 
-That's it! The wizard handles:
+The setup wizard now includes:
+- ✅ **Security profile selection** (Maximum/Balanced/Development)
+- ✅ **Automatic configuration** (12 security layers with Balanced)
 - ✅ Secure token generation
 - ✅ DM pairing setup
-- ✅ Docker sandbox configuration
+- ✅ Docker sandbox configuration (auto-detected)
 - ✅ Browser profile validation
 
 ---
@@ -134,6 +189,10 @@ clancybot agent --message "What's the weather?" --thinking high
 
 # Check security status
 clancybot security audit
+
+# View/change security profile
+clancybot profile show
+clancybot profile select maximum
 ```
 
 ---
