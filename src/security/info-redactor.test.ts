@@ -1,3 +1,9 @@
+/**
+ * NOTE: All tokens in this test file are FAKE and for testing purposes only.
+ * They are intentionally designed to NOT look like real tokens to avoid
+ * triggering GitHub's secret scanning alerts.
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   redactTokens,
