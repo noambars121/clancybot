@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { installSkill } from "../agents/skills-install.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -87,12 +88,27 @@ export async function setupSkills(
       initialValue: true,
     });
     if (installBrew) {
-      const spin = prompter.progress("Installing Homebrew...");
+      const spin = prompter.progress("Installing Homebrew (this may take 10+ minutes)...");
       try {
-        // Install Homebrew
+        // Install Homebrew using spawn (interactive)
         const installCmd = 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash';
-        await runCommandWithTimeout(["bash", "-c", installCmd], {
-          timeoutMs: 600000, // 10 minutes timeout
+        await new Promise<void>((resolve, reject) => {
+          const child = spawn("bash", ["-c", installCmd], {
+            stdio: "inherit", // Pass through stdin/stdout/stderr
+            shell: true,
+          });
+          
+          child.on("exit", (code) => {
+            if (code === 0) {
+              resolve();
+            } else {
+              reject(new Error(`Homebrew installation failed with exit code ${code}`));
+            }
+          });
+          
+          child.on("error", (err) => {
+            reject(err);
+          });
         });
         
         // Add Homebrew to PATH for current session
@@ -113,11 +129,25 @@ export async function setupSkills(
         spin.stop("✅ Homebrew installed successfully!");
         
         // Install uv (Python package manager) automatically
-        await prompter.note("Installing uv (Python package manager)...", "Additional setup");
+        runtime.log("Installing uv (Python package manager)...");
         const uvSpin = prompter.progress("Installing uv...");
         try {
-          await runCommandWithTimeout(["brew", "install", "uv"], {
-            timeoutMs: 300000, // 5 minutes timeout
+          await new Promise<void>((resolve, reject) => {
+            const child = spawn("brew", ["install", "uv"], {
+              stdio: "inherit",
+            });
+            
+            child.on("exit", (code) => {
+              if (code === 0) {
+                resolve();
+              } else {
+                reject(new Error(`uv installation failed with exit code ${code}`));
+              }
+            });
+            
+            child.on("error", (err) => {
+              reject(err);
+            });
           });
           uvSpin.stop("✅ uv installed successfully!");
         } catch {
