@@ -440,7 +440,7 @@ export async function prepareSlackMessage(params: {
   // SECURITY: Sanitize sender name and group subject
   const { sanitizeDisplayName, sanitizeGroupName } = await import("../../../security/prompt-injection-guard.js");
   const safeSenderName = senderName ? sanitizeDisplayName(senderName) : undefined;
-  const safeGroupSubject = resolvedChannel ? sanitizeGroupName(resolvedChannel) : undefined;
+  const safeGroupSubject = channelName ? sanitizeGroupName(channelName) : undefined;
   
   const slackTo = isDirectMessage ? `user:${message.user}` : `channel:${message.channel}`;
 

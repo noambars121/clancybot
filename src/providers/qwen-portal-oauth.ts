@@ -29,9 +29,9 @@ export async function refreshQwenPortalCredentials(
   // Convert back to OAuthCredentials
   return {
     ...credentials,
-    access: result.token.access,
-    refresh: result.token.refresh,
-    expires: result.token.expires,
+    access: result.token.access ?? "",
+    refresh: result.token.refresh ?? "",
+    expires: result.token.expires ?? 0,
   };
 }
 
@@ -40,9 +40,9 @@ export async function refreshQwenPortalCredentials(
  */
 async function refreshQwenInternal(token: OAuthToken): Promise<OAuthToken> {
   const credentials: OAuthCredentials = {
-    access: token.access,
-    refresh: token.refresh,
-    expires: token.expires,
+    access: token.access ?? "",
+    refresh: token.refresh ?? "",
+    expires: token.expires ?? 0,
   };
   if (!credentials.refresh?.trim()) {
     throw new Error("Qwen OAuth refresh token missing; re-authenticate.");
