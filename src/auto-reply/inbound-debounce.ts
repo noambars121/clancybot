@@ -68,7 +68,7 @@ export function createInboundDebouncer<T>(params: {
     if (buffer.timeout) clearTimeout(buffer.timeout);
     buffer.timeout = setTimeout(() => {
       void flushBuffer(key, buffer);
-    }, debounceMs);
+    }, debounceMs) as unknown as NodeJS.Timeout;
     buffer.timeout.unref?.();
   };
 

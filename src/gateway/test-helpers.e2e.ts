@@ -51,7 +51,7 @@ export async function connectGatewayClient(params: {
       onClose: (code, reason) =>
         stop(new Error(`gateway closed during connect (${code}): ${reason}`)),
     });
-    const timer = setTimeout(() => stop(new Error("gateway connect timeout")), 10_000);
+    const timer = setTimeout(() => stop(new Error("gateway connect timeout")), 10_000) as unknown as NodeJS.Timeout;
     timer.unref();
     client.start();
   });

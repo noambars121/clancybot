@@ -75,9 +75,9 @@ export function attachMediaRoutes(
   });
 
   // periodic cleanup
-  setInterval(() => {
+  (setInterval(() => {
     void cleanOldMedia(ttlMs);
-  }, ttlMs).unref();
+  }, ttlMs) as unknown as NodeJS.Timeout).unref();
 }
 
 export async function startMediaServer(

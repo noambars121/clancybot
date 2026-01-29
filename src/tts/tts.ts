@@ -909,7 +909,7 @@ function scheduleCleanup(tempDir: string, delayMs: number = TEMP_FILE_CLEANUP_DE
     } catch {
       // ignore cleanup errors
     }
-  }, delayMs);
+  }, delayMs) as unknown as NodeJS.Timeout;
   timer.unref();
 }
 

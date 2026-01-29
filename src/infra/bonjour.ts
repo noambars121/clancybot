@@ -243,7 +243,7 @@ export async function startGatewayBonjourAdvertiser(
         );
       }
     }
-  }, 60_000);
+  }, 60_000) as unknown as NodeJS.Timeout;
   watchdog.unref?.();
 
   return {
