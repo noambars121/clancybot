@@ -14,6 +14,7 @@ import { registerConfigureCommand } from "./register.configure.js";
 import { registerMaintenanceCommands } from "./register.maintenance.js";
 import { registerMessageCommands } from "./register.message.js";
 import { registerOnboardCommand } from "./register.onboard.js";
+import { registerOnboardFullCommand } from "./register.onboard-full.js";
 import { registerSetupCommand } from "./register.setup.js";
 import { registerSetupSecureCommand } from "./register.setup-secure.js";
 import { registerStatusHealthSessionsCommands } from "./register.status-health-sessions.js";
@@ -116,6 +117,10 @@ export const commandRegistry: CommandRegistration[] = [
   {
     id: "onboard",
     register: ({ program }) => registerOnboardCommand(program),
+  },
+  {
+    id: "onboard-full",
+    register: ({ program }) => registerOnboardFullCommand(program),
   },
   {
     id: "configure",
