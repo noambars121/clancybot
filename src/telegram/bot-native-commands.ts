@@ -25,6 +25,7 @@ import {
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
+import { sanitizeForPrompt } from "../security/prompt-injection-guard.js";
 import {
   executePluginCommand,
   getPluginCommandSpecs,
@@ -438,7 +439,6 @@ export const registerTelegramNativeCommands = ({
             topicConfig?.systemPrompt?.trim() || null,
           ].filter((entry): entry is string => Boolean(entry));
           // SECURITY: Sanitize topic system prompts to prevent prompt injection
-          const { sanitizeForPrompt } = await import("../../security/prompt-injection-guard.js");
           const safeTopicPrompt = topicConfig?.systemPrompt?.trim()
             ? sanitizeForPrompt(topicConfig.systemPrompt.trim(), { maxLength: 2000 })
             : null;
