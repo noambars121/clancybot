@@ -14,7 +14,7 @@
 
 import { getChildLogger } from "../logging/logger.js";
 
-const log = getChildLogger("token-budget");
+const log = getChildLogger({ module: "token-budget" });
 
 export interface TokenBudgetConfig {
   enabled: boolean;
@@ -144,32 +144,33 @@ export class TokenBudgetManager {
     
     // Get agent-specific limits if available
     const agentConfig = agentId && this.config.perAgent?.[agentId];
+    const agentLimits = typeof agentConfig === 'object' ? agentConfig : undefined;
     
-    if (this.config.dailyLimit || agentConfig?.dailyLimit) {
+    if (this.config.dailyLimit || agentLimits?.dailyLimit) {
       statuses.push(
         this.calculateBudgetStatus(
           "daily",
-          agentConfig?.dailyLimit || this.config.dailyLimit!,
+          agentLimits?.dailyLimit || this.config.dailyLimit!,
           agentId,
         ),
       );
     }
     
-    if (this.config.weeklyLimit || agentConfig?.weeklyLimit) {
+    if (this.config.weeklyLimit || agentLimits?.weeklyLimit) {
       statuses.push(
         this.calculateBudgetStatus(
           "weekly",
-          agentConfig?.weeklyLimit || this.config.weeklyLimit!,
+          agentLimits?.weeklyLimit || this.config.weeklyLimit!,
           agentId,
         ),
       );
     }
     
-    if (this.config.monthlyLimit || agentConfig?.monthlyLimit) {
+    if (this.config.monthlyLimit || agentLimits?.monthlyLimit) {
       statuses.push(
         this.calculateBudgetStatus(
           "monthly",
-          agentConfig?.monthlyLimit || this.config.monthlyLimit!,
+          agentLimits?.monthlyLimit || this.config.monthlyLimit!,
           agentId,
         ),
       );
