@@ -90,8 +90,26 @@ export async function setupSkills(
     if (installBrew) {
       const spin = prompter.progress("Installing Homebrew (this may take 10+ minutes)...");
       try {
+        // Check if curl is available
+        if (!(await detectBinary("curl"))) {
+          spin.stop("❌ curl is not installed");
+          await prompter.note(
+            [
+              "curl is required to install Homebrew.",
+              "",
+              "On Ubuntu/Debian, install with:",
+              "  sudo apt-get update && sudo apt-get install -y curl build-essential",
+              "",
+              "On RHEL/CentOS, install with:",
+              "  sudo yum install -y curl gcc make",
+            ].join("\n"),
+            "curl required",
+          );
+          return cfg;
+        }
+        
         // Install Homebrew using spawn (interactive)
-        const installCmd = 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash';
+        const installCmd = '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"';
         await new Promise<void>((resolve, reject) => {
           const child = spawn("bash", ["-c", installCmd], {
             stdio: "inherit", // Pass through stdin/stdout/stderr
@@ -111,25 +129,42 @@ export async function setupSkills(
           });
         });
         
+        spin.stop("✅ Homebrew installed!");
+        
         // Add Homebrew to PATH for current session
         const brewPath = "/home/linuxbrew/.linuxbrew/bin/brew";
+        const homebrewBinDir = "/home/linuxbrew/.linuxbrew/bin";
+        
+        // Add to PATH if not already there
+        if (!process.env.PATH?.includes(homebrewBinDir)) {
+          process.env.PATH = `${homebrewBinDir}:${process.env.PATH}`;
+        }
+        
+        // Set Homebrew environment variables
         if (await detectBinary(brewPath)) {
-          const { stdout } = await runCommandWithTimeout([brewPath, "shellenv"], {
-            timeoutMs: 5000,
-          });
-          const envVars = stdout.split("\n").filter((line: string) => line.startsWith("export "));
-          for (const line of envVars) {
-            const match = line.match(/export\s+(\w+)="([^"]*)"/);
-            if (match) {
-              process.env[match[1]] = match[2];
+          try {
+            const { stdout } = await runCommandWithTimeout([brewPath, "shellenv"], {
+              timeoutMs: 5000,
+            });
+            const envVars = stdout.split("\n").filter((line: string) => line.startsWith("export "));
+            for (const line of envVars) {
+              const match = line.match(/export\s+(\w+)="([^"]*)"/);
+              if (match) {
+                process.env[match[1]] = match[2];
+              }
             }
+          } catch (err) {
+            runtime.error(`Failed to get brew shellenv: ${String(err)}`);
           }
         }
         
-        spin.stop("✅ Homebrew installed successfully!");
+        // Verify brew is now available
+        if (!(await detectBinary("brew"))) {
+          throw new Error("brew command not found in PATH after installation");
+        }
         
         // Install uv (Python package manager) automatically
-        runtime.log("Installing uv (Python package manager)...");
+        await prompter.note("Installing uv (Python package manager)...", "Additional setup");
         const uvSpin = prompter.progress("Installing uv...");
         try {
           await new Promise<void>((resolve, reject) => {
@@ -150,8 +185,8 @@ export async function setupSkills(
             });
           });
           uvSpin.stop("✅ uv installed successfully!");
-        } catch {
-          uvSpin.stop("⚠️ uv installation failed (can be installed later)");
+        } catch (err) {
+          uvSpin.stop(`⚠️ uv installation failed: ${err instanceof Error ? err.message : String(err)}`);
         }
         
         await prompter.note(
