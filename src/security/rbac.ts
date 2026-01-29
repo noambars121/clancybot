@@ -410,8 +410,8 @@ export function resolveRole(
   cfg: MoltbotConfig,
 ): Role {
   // Admin allowlist (from config)
-  const adminAccountIds = cfg.security?.rbac?.adminAccountIds ?? [];
-  const adminChannels = cfg.security?.rbac?.adminChannels ?? [];
+  const adminAccountIds = (cfg as any).security?.rbac?.adminAccountIds ?? [];
+  const adminChannels = (cfg as any).security?.rbac?.adminChannels ?? [];
 
   if (ctx.accountId && adminAccountIds.includes(ctx.accountId)) {
     return "admin";

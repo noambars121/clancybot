@@ -32,7 +32,7 @@ import { findLegacyConfigIssues } from "./legacy.js";
 import { normalizeConfigPaths } from "./normalize-paths.js";
 import { resolveConfigPath, resolveDefaultConfigCandidates, resolveStateDir } from "./paths.js";
 import { applyConfigOverrides } from "./runtime-overrides.js";
-import type { MoltbotConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+import type { MoltbotConfig, ConfigFileSnapshot, LegacyConfigIssue, ConfigValidationIssue } from "./types.js";
 import { validateConfigObjectWithPlugins } from "./validation.js";
 import { compareMoltbotVersions } from "./version.js";
 

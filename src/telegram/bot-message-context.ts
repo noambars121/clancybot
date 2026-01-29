@@ -545,7 +545,7 @@ export const buildTelegramMessageContext = async ({
   // SECURITY: Sanitize group/topic system prompts to prevent prompt injection
   // User-configured systemPrompts from config are trusted, but we still sanitize them
   // to prevent accidental injection via config file manipulation
-  const { sanitizeForPrompt } = await import("../../security/prompt-injection-guard");
+  const { sanitizeForPrompt } = await import("../../security/prompt-injection-guard.js");
   const safeGroupPrompt = groupConfig?.systemPrompt?.trim() 
     ? sanitizeForPrompt(groupConfig.systemPrompt.trim(), { maxLength: 2000 })
     : null;
@@ -562,7 +562,7 @@ export const buildTelegramMessageContext = async ({
   const commandBody = normalizeCommandBody(rawBody, { botUsername });
   
   // SECURITY: Sanitize group name and sender name to prevent prompt injection
-  const { sanitizeGroupName, sanitizeDisplayName } = await import("../../security/prompt-injection-guard");
+  const { sanitizeGroupName, sanitizeDisplayName } = await import("../../security/prompt-injection-guard.js");
   const safeGroupSubject = isGroup && msg.chat.title 
     ? sanitizeGroupName(msg.chat.title)
     : undefined;

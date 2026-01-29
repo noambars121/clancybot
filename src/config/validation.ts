@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "./config.js";
+import type { MoltbotConfig, ConfigValidationIssue } from "./types.js";
 
 export class ConfigValidationError extends Error {
   constructor(message: string, public readonly path: string) {
@@ -50,15 +50,15 @@ export function validateChannelConfig(config: MoltbotConfig): void {
 // Validation result type
 export type ValidationResult = {
   ok: boolean;
-  issues: Array<{ path?: string; message: string }>;
-  warnings: Array<{ path?: string; message: string }>;
+  issues: ConfigValidationIssue[];
+  warnings: ConfigValidationIssue[];
   config: MoltbotConfig;
 };
 
 // Export these functions to satisfy config.ts exports
 export function validateConfigObject(config: MoltbotConfig): ValidationResult {
-  const issues: Array<{ path?: string; message: string }> = [];
-  const warnings: Array<{ path?: string; message: string }> = [];
+  const issues: ConfigValidationIssue[] = [];
+  const warnings: ConfigValidationIssue[] = [];
   
   try {
     validateChannelConfig(config);
@@ -66,7 +66,7 @@ export function validateConfigObject(config: MoltbotConfig): ValidationResult {
     if (err instanceof ConfigValidationError) {
       issues.push({ path: err.path, message: err.message });
     } else {
-      issues.push({ message: String(err) });
+      issues.push({ path: "", message: String(err) });
     }
   }
   
