@@ -377,7 +377,7 @@ export class DiscordExecApprovalHandler {
         const timeoutMs = Math.max(0, request.expiresAtMs - Date.now());
         const timeoutId = setTimeout(() => {
           void this.handleApprovalTimeout(request.id);
-        }, timeoutMs);
+        }, timeoutMs) as unknown as NodeJS.Timeout;
 
         this.pending.set(request.id, {
           discordMessageId: message.id,

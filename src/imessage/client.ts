@@ -154,7 +154,7 @@ export class IMessageRpcClient {
       this.pending.set(key, {
         resolve: (value) => resolve(value as T),
         reject,
-        timer,
+        timer: timer as unknown as NodeJS.Timeout | undefined,
       });
     });
 

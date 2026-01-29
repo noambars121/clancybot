@@ -235,7 +235,7 @@ export function createExecApprovalForwarder(
         const expiredText = buildExpiredMessage(request);
         await deliverToTargets({ cfg, targets: entry.targets, text: expiredText, deliver });
       })();
-    }, expiresInMs);
+    }, expiresInMs) as unknown as NodeJS.Timeout;
     timeoutId.unref?.();
 
     const pendingEntry: PendingApproval = { request, targets, timeoutId };

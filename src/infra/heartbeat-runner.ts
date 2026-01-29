@@ -797,7 +797,7 @@ export function startHeartbeatRunner(opts: {
     const delay = Math.max(0, nextDue - now);
     state.timer = setTimeout(() => {
       requestHeartbeatNow({ reason: "interval", coalesceMs: 0 });
-    }, delay);
+    }, delay) as unknown as NodeJS.Timeout;
     state.timer.unref?.();
   };
 

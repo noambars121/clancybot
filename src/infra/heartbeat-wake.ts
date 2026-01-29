@@ -45,7 +45,7 @@ function schedule(coalesceMs: number) {
       running = false;
       if (pendingReason || scheduled) schedule(coalesceMs);
     }
-  }, coalesceMs);
+  }, coalesceMs) as unknown as NodeJS.Timeout;
   timer.unref?.();
 }
 

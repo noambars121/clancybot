@@ -653,7 +653,7 @@ export async function runEmbeddedAttempt(
                   `embedded run abort still streaming: runId=${params.runId} sessionId=${params.sessionId}`,
                 );
               }
-            }, 10_000);
+            }, 10_000) as unknown as NodeJS.Timeout;
           }
         },
         Math.max(1, params.timeoutMs),

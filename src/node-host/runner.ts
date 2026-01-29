@@ -397,7 +397,7 @@ async function runCommand(
         } catch {
           // ignore
         }
-      }, timeoutMs);
+      }, timeoutMs) as unknown as NodeJS.Timeout;
     }
 
     const finalize = (exitCode?: number, error?: string | null) => {
