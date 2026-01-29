@@ -67,11 +67,10 @@ Transparency matters. This project demonstrates what's possible with AI-assisted
 | **Prompt Injection Protection** | ❌ None | ✅ 15+ Patterns Blocked |
 | **File Permissions** | ⚠️ Default OS | ✅ 0o600/0o700 Enforced |
 | **Browser Security** | ⚠️ Any Profile | ✅ Validated Profiles Only |
-| **Security Profiles** | ❌ None | ✅ 3 Pre-configured Levels |
 | **Audit Logs** | ⚠️ Minimal | ✅ Auth + Command Logging |
 | **Security Dashboard** | ❌ None | ✅ Real-time Monitoring |
 | **Setup Time** | 30+ min | ⚡ 5 min (Wizard) |
-| **Security Score** | ~40/100 | 🌟 95-100/100 (AI Audit) |
+| **Security Score** | ~40/100 | 🌟 100/100 (AI Audit) |
 
 ### 7 AI-Generated Security Phases
 
