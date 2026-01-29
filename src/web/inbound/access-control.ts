@@ -135,7 +135,7 @@ export async function checkInboundAccessControl(params: {
         resolvedAccountId: account.accountId,
       };
     }
-    if (dmPolicy !== "open" && !isSamePhone) {
+    if ((dmPolicy as any) !== "open" && !isSamePhone) {
       const candidate = params.from;
       const allowed =
         dmHasWildcard ||

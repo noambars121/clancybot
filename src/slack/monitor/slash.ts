@@ -201,7 +201,7 @@ export function registerSlackMonitorSlashCommands(params: {
           });
           return;
         }
-        if (ctx.dmPolicy !== "open") {
+        if ((ctx.dmPolicy as any) !== "open") {
           const sender = await ctx.resolveUserName(command.user_id);
           const senderName = sender?.name ?? undefined;
           const allowMatch = resolveSlackAllowListMatch({

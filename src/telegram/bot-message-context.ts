@@ -222,7 +222,7 @@ export const buildTelegramMessageContext = async ({
   if (!isGroup) {
     if (dmPolicy === "disabled") return null;
 
-    if (dmPolicy !== "open") {
+    if ((dmPolicy as any) !== "open") {
       const candidate = String(chatId);
       const senderUsername = msg.from?.username ?? "";
       const allowMatch = resolveSenderAllowMatch({

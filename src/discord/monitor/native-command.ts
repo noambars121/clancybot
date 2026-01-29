@@ -593,7 +593,7 @@ async function dispatchDiscordCommandInteraction(params: {
       await respond("Discord DMs are disabled.");
       return;
     }
-    if (dmPolicy !== "open") {
+    if ((dmPolicy as any) !== "open") {
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(discordConfig?.dm?.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);

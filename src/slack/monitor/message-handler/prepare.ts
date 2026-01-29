@@ -133,7 +133,7 @@ export async function prepareSlackMessage(params: {
       logVerbose("slack: drop dm (dms disabled)");
       return null;
     }
-    if (ctx.dmPolicy !== "open") {
+    if ((ctx.dmPolicy as any) !== "open") {
       const allowMatch = resolveSlackAllowListMatch({
         allowList: allowFromLower,
         id: directUserId,

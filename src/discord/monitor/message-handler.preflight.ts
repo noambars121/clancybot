@@ -94,7 +94,7 @@ export async function preflightDiscordMessage(
       logVerbose("discord: drop dm (dmPolicy: disabled)");
       return null;
     }
-    if (dmPolicy !== "open") {
+    if ((dmPolicy as any) !== "open") {
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(params.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
