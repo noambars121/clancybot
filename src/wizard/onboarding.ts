@@ -57,7 +57,7 @@ async function requireRiskAcknowledgement(params: {
       "This bot can read files and run actions if tools are enabled.",
       "A bad prompt can trick it into doing unsafe things.",
       "",
-      "If you’re not comfortable with basic security and access control, don’t run Moltbot.",
+      "If you’re not comfortable with basic security and access control, don’t run ClancyBot.",
       "Ask someone experienced to help before enabling tools or exposing it to the internet.",
       "",
       "Recommended baseline:",
