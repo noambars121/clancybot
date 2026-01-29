@@ -23,7 +23,7 @@ const channel = "discord" as const;
 
 function setDiscordDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
-    dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.discord?.dm?.allowFrom) : undefined;
+    (dmPolicy as any) === "open" ? addWildcardAllowFrom(cfg.channels?.discord?.dm?.allowFrom) : undefined;
   return {
     ...cfg,
     channels: {

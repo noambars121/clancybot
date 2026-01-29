@@ -167,7 +167,7 @@ async function promptWhatsAppAllowFrom(
 
   let next = setWhatsAppSelfChatMode(cfg, false);
   next = setWhatsAppDmPolicy(next, policy);
-  if (policy === "open") {
+  if ((policy as any) === "open") {
     next = setWhatsAppAllowFrom(next, ["*"]);
   }
   if (policy === "disabled") return next;

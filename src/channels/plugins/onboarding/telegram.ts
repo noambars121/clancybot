@@ -16,7 +16,7 @@ const channel = "telegram" as const;
 
 function setTelegramDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
-    dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.telegram?.allowFrom) : undefined;
+    (dmPolicy as any) === "open" ? addWildcardAllowFrom(cfg.channels?.telegram?.allowFrom) : undefined;
   return {
     ...cfg,
     channels: {

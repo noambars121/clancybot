@@ -388,7 +388,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const effectiveDmAllow = [...deps.allowFrom, ...storeAllowFrom];
     const effectiveGroupAllow = [...deps.groupAllowFrom, ...storeAllowFrom];
     const dmAllowed =
-      deps.dmPolicy === "open" ? true : isSignalSenderAllowed(sender, effectiveDmAllow);
+      (deps.dmPolicy as any) === "open" ? true : isSignalSenderAllowed(sender, effectiveDmAllow);
 
     if (!isGroup) {
       if (deps.dmPolicy === "disabled") return;

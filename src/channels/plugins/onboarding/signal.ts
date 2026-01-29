@@ -19,7 +19,7 @@ const channel = "signal" as const;
 
 function setSignalDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
-    dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.signal?.allowFrom) : undefined;
+    (dmPolicy as any) === "open" ? addWildcardAllowFrom(cfg.channels?.signal?.allowFrom) : undefined;
   return {
     ...cfg,
     channels: {

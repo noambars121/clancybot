@@ -261,7 +261,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
 
     const dmHasWildcard = effectiveDmAllowFrom.includes("*");
     const dmAuthorized =
-      dmPolicy === "open"
+      (dmPolicy as any) === "open"
         ? true
         : dmHasWildcard ||
           (effectiveDmAllowFrom.length > 0 &&

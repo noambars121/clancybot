@@ -17,7 +17,7 @@ const channel = "imessage" as const;
 
 function setIMessageDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
-    dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.imessage?.allowFrom) : undefined;
+    (dmPolicy as any) === "open" ? addWildcardAllowFrom(cfg.channels?.imessage?.allowFrom) : undefined;
   return {
     ...cfg,
     channels: {
