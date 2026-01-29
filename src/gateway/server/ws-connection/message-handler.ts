@@ -569,7 +569,7 @@ export function attachGatewayWsMessageHandler(params: {
         }
 
         // Rate limit check before authentication
-        const rateLimitResult = globalRateLimiter.checkLimit(clientIp);
+        const rateLimitResult = globalRateLimiter.checkLimit(clientIp ?? "unknown");
         if (!rateLimitResult.allowed) {
           setHandshakeState("failed");
           logWsControl.warn(
@@ -843,7 +843,7 @@ export function attachGatewayWsMessageHandler(params: {
         clearHandshakeTimer();
         
         // Record successful auth - resets rate limit for this IP
-        globalRateLimiter.recordSuccess(clientIp);
+        globalRateLimiter.recordSuccess(clientIp ?? "unknown");
         
         const nextClient: GatewayWsClient = {
           socket,
