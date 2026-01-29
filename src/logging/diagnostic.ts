@@ -340,7 +340,7 @@ export function startDiagnosticHeartbeat() {
         });
       }
     }
-  }, 30_000);
+  }, 30_000) as unknown as NodeJS.Timeout;
   heartbeatInterval.unref?.();
 }
 

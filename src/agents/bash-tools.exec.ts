@@ -556,14 +556,14 @@ async function runExecProcess(opts: {
     if (!timeoutFinalizeTimer) {
       timeoutFinalizeTimer = setTimeout(() => {
         finalizeTimeout();
-      }, timeoutFinalizeMs);
+      }, timeoutFinalizeMs) as unknown as NodeJS.Timeout;
     }
   };
 
   if (opts.timeoutSec > 0) {
     timeoutTimer = setTimeout(() => {
       onTimeout();
-    }, opts.timeoutSec * 1000);
+    }, opts.timeoutSec * 1000) as unknown as NodeJS.Timeout;
   }
 
   const emitUpdate = () => {
@@ -1082,7 +1082,7 @@ export function createExecTool(
                   `Exec running (node=${nodeId} id=${approvalId}, >${noticeSeconds}s): ${commandText}`,
                   { sessionKey: notifySessionKey, contextKey },
                 );
-              }, approvalRunningNoticeMs);
+              }, approvalRunningNoticeMs) as unknown as NodeJS.Timeout;
             }
 
             try {
@@ -1321,7 +1321,7 @@ export function createExecTool(
                   `Exec running (gateway id=${approvalId}, session=${run?.session.id}, >${noticeSeconds}s): ${commandText}`,
                   { sessionKey: notifySessionKey, contextKey },
                 );
-              }, approvalRunningNoticeMs);
+              }, approvalRunningNoticeMs) as unknown as NodeJS.Timeout;
             }
 
             const outcome = await run.promise;
@@ -1454,7 +1454,7 @@ export function createExecTool(
               yielded = true;
               markBackgrounded(run.session);
               resolveRunning();
-            }, yieldWindow);
+            }, yieldWindow) as unknown as NodeJS.Timeout;
           }
         }
 

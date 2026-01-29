@@ -807,7 +807,7 @@ export class MemoryIndexManager {
       void this.processSessionDeltaBatch().catch((err) => {
         log.warn(`memory session delta failed: ${String(err)}`);
       });
-    }, SESSION_DIRTY_DEBOUNCE_MS);
+    }, SESSION_DIRTY_DEBOUNCE_MS) as unknown as NodeJS.Timeout;
   }
 
   private async processSessionDeltaBatch(): Promise<void> {
@@ -945,7 +945,7 @@ export class MemoryIndexManager {
       void this.sync({ reason: "interval" }).catch((err) => {
         log.warn(`memory sync failed (interval): ${String(err)}`);
       });
-    }, ms);
+    }, ms) as unknown as NodeJS.Timeout;
   }
 
   private scheduleWatchSync() {
@@ -956,7 +956,7 @@ export class MemoryIndexManager {
       void this.sync({ reason: "watch" }).catch((err) => {
         log.warn(`memory sync failed (watch): ${String(err)}`);
       });
-    }, this.settings.sync.watchDebounceMs);
+    }, this.settings.sync.watchDebounceMs) as unknown as NodeJS.Timeout;
   }
 
   private shouldSyncSessions(
@@ -1930,7 +1930,7 @@ export class MemoryIndexManager {
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) return await promise;
     let timer: NodeJS.Timeout | null = null;
     const timeoutPromise = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      timer = setTimeout(() => reject(new Error(message)), timeoutMs) as unknown as NodeJS.Timeout;
     });
     try {
       return (await Promise.race([promise, timeoutPromise])) as T;

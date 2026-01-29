@@ -326,7 +326,7 @@ export class GatewayClient {
     if (this.connectTimer) clearTimeout(this.connectTimer);
     this.connectTimer = setTimeout(() => {
       this.sendConnect();
-    }, 750);
+    }, 750) as unknown as NodeJS.Timeout;
   }
 
   private scheduleReconnect() {
@@ -357,7 +357,7 @@ export class GatewayClient {
       if (gap > this.tickIntervalMs * 2) {
         this.ws?.close(4000, "tick timeout");
       }
-    }, interval);
+    }, interval) as unknown as NodeJS.Timeout;
   }
 
   private validateTlsFingerprint(): Error | null {

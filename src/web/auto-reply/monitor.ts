@@ -276,7 +276,7 @@ export async function monitorWebChannel(
         } else {
           heartbeatLogger.info(logData, "web gateway heartbeat");
         }
-      }, heartbeatSeconds * 1000);
+      }, heartbeatSeconds * 1000) as unknown as NodeJS.Timeout;
 
       watchdogTimer = setInterval(() => {
         if (!lastMessageAt) return;
@@ -303,7 +303,7 @@ export async function monitorWebChannel(
           isLoggedOut: false,
           error: "watchdog-timeout",
         });
-      }, WATCHDOG_CHECK_MS);
+      }, WATCHDOG_CHECK_MS) as unknown as NodeJS.Timeout;
     }
 
     whatsappLog.info("Listening for personal WhatsApp inbound messages.");
