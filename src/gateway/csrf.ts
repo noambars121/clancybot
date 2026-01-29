@@ -11,7 +11,9 @@
 
 import { randomBytes } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("csrf");
 
 // ============================================================================
 // Types

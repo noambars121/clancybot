@@ -21,7 +21,9 @@ import { readFile, writeFile, readdir, stat, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, basename } from "node:path";
 import { homedir } from "node:os";
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("memory-doctor");
 
 // ============================================================================
 // Types

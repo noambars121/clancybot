@@ -13,8 +13,10 @@ import { randomBytes, createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { log } from "../common/log.js";
-import type { MoltbotConfig } from "../config/config-schema.js";
+import { getChildLogger } from "../logging.js";
+import type { MoltbotConfig } from "../config/types.js";
+
+const log = getChildLogger("canary-tokens");
 
 // ============================================================================
 // Types

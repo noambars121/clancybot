@@ -12,7 +12,9 @@
 import { intro, outro, text, select, confirm, spinner, note } from "@clack/prompts";
 import { bold, cyan, green, red, dim, yellow } from "kleur/colors";
 import { MemoryDoctor, type MemoryMatch, type PurgeOptions } from "../memory/memory-doctor.js";
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("memory-purge");
 
 // ============================================================================
 // Purge Command

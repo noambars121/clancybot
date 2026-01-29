@@ -16,7 +16,9 @@ import { createHash, sign, verify, generateKeyPairSync } from "node:crypto";
 import { readFile, writeFile, readdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, relative } from "node:path";
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("skills-signing");
 
 // ============================================================================
 // Types

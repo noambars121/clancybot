@@ -12,8 +12,10 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { URL } from "node:url";
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
 import type { CanaryAccess } from "./canary-tokens.js";
+
+const log = getChildLogger("canary-service");
 
 // ============================================================================
 // Types

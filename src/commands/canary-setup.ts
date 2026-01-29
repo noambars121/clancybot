@@ -22,7 +22,7 @@ import {
   type CanaryToken,
 } from "../security/canary-tokens.js";
 import { startCanaryService } from "../security/canary-service.js";
-import { getConfig, setConfig } from "../config/index.js";
+import { loadConfig, writeConfigFile } from "../config/config.js";
 
 // ============================================================================
 // Setup Command
@@ -46,8 +46,8 @@ export async function setupCommand(): Promise<void> {
   );
 
   // Check if already enabled
-  const config = await getConfig();
-  const canaryConfig = config.security?.canary as CanaryConfig | undefined;
+  const config = loadConfig();
+  const canaryConfig = (config as any).security?.canary as CanaryConfig | undefined;
 
   if (canaryConfig?.enabled) {
     const continueSetup = await confirm({
@@ -122,12 +122,12 @@ export async function setupCommand(): Promise<void> {
     alertEmail,
   };
 
-  await setConfig({
-    security: {
-      ...config.security,
-      canary: newCanaryConfig,
-    },
-  });
+  // Update config with canary settings
+  (config as any).security = {
+    ...(config as any).security,
+    canary: newCanaryConfig,
+  };
+  await writeConfigFile(config);
 
   s.stop("Configuration saved");
 
@@ -195,8 +195,8 @@ export async function setupCommand(): Promise<void> {
 export async function statusCommand(): Promise<void> {
   intro(bold(cyan("🍯 Canary Token Status")));
 
-  const config = await getConfig();
-  const canaryConfig = config.security?.canary as CanaryConfig | undefined;
+  const config = loadConfig();
+  const canaryConfig = (config as any).security?.canary as CanaryConfig | undefined;
 
   if (!canaryConfig?.enabled) {
     note(
@@ -308,8 +308,8 @@ export async function injectCommand(): Promise<void> {
   s.start("Injecting canary tokens...");
 
   try {
-    const config = await getConfig();
-    const canaryConfig = (config.security?.canary as CanaryConfig) || DEFAULT_CANARY_CONFIG;
+    const config = loadConfig();
+    const canaryConfig = ((config as any).security?.canary as CanaryConfig) || DEFAULT_CANARY_CONFIG;
     const manager = new CanaryTokenManager(canaryConfig);
 
     await manager.injectIntoFile(expanded);
@@ -350,8 +350,8 @@ async function injectCanariesCommand(): Promise<void> {
   s.start("Injecting canaries into memory files...");
 
   try {
-    const config = await getConfig();
-    const canaryConfig = (config.security?.canary as CanaryConfig) || DEFAULT_CANARY_CONFIG;
+    const config = loadConfig();
+    const canaryConfig = ((config as any).security?.canary as CanaryConfig) || DEFAULT_CANARY_CONFIG;
     const manager = new CanaryTokenManager(canaryConfig);
 
     // Find memory files

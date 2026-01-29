@@ -15,12 +15,11 @@
  * @module memory/encryption-at-rest
  */
 
-import { randomBytes, scrypt, createCipheriv, createDecipheriv } from "node:crypto";
+import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from "node:crypto";
 import { readFile, writeFile, stat } from "node:fs/promises";
-import { promisify } from "node:util";
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
 
-const scryptAsync = promisify(scrypt);
+const log = getChildLogger("memory-encryption-at-rest");
 
 // ============================================================================
 // Types
@@ -88,11 +87,12 @@ export async function deriveKey(
   }
 
   try {
-    const key = (await scryptAsync(passphrase, salt, config.keyLength, {
+    // Use scryptSync with proper options (matching secrets-encryption.ts pattern)
+    const key = scryptSync(passphrase, salt, config.keyLength, {
       N: config.scryptCost,
       r: 8,
       p: 1,
-    })) as Buffer;
+    });
 
     return key;
   } catch (err) {

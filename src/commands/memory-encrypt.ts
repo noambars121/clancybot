@@ -20,10 +20,11 @@ import {
   validatePassphrase,
   migrateDirectory,
   isFileEncrypted,
-  writeFile,
-  readFile,
 } from "../memory/encryption-at-rest.js";
-import { log } from "../logging.js";
+import { readFile, writeFile } from "node:fs/promises";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("memory-encrypt");
 
 // ============================================================================
 // Config

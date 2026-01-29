@@ -11,7 +11,9 @@
  * @see Phase 10 - Pentagon++++ Security
  */
 
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("vector-purge");
 
 // ============================================================================
 // Types

@@ -16,10 +16,12 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { loadConfig } from "../config/load.js";
+import { loadConfig } from "../config/config.js";
 import { securityLogger } from "../security/advanced-security.js";
 import { listPendingApprovals, approveRequest, denyRequest, getApprovalHistory } from "../security/approval-manager.js";
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("security-dashboard-api");
 
 // ============================================================================
 // Types

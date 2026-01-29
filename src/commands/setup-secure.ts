@@ -22,15 +22,17 @@ import { randomBytes } from "node:crypto";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import type { MoltbotConfig } from "../config/schema.js";
-import { loadConfig, saveConfig } from "../config/load.js";
-import { log } from "../logging.js";
+import type { MoltbotConfig } from "../config/types.js";
+import { loadConfig, writeConfigFile } from "../config/config.js";
+import { getChildLogger } from "../logging.js";
 import {
   type SecurityProfile,
   getAllProfiles,
   applyProfile,
   getRecommendedProfile,
 } from "../config/security-profiles.js";
+
+const log = getChildLogger("setup-secure");
 
 // ============================================================================
 // Secure Defaults
@@ -411,7 +413,7 @@ export async function runSecureSetup(): Promise<void> {
     const s = spinner();
     s.start("Saving configuration...");
     await new Promise((resolve) => setTimeout(resolve, 500));
-    saveConfig(cfg as MoltbotConfig);
+    await writeConfigFile(cfg as MoltbotConfig);
     s.stop("Configuration saved");
 
     // Get profile name

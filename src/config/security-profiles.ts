@@ -6,11 +6,20 @@
  * - Balanced (Pentagon+++) - Recommended for most users
  * - Development (Pentagon) - For local development only
  *
+ * NOTE: This is a simplified version. Full config options for security
+ * features (memory encryption, canary tokens, network policies, etc.)
+ * are managed through separate config sections and CLI commands.
+ *
  * @see Phase 10 - Pentagon++++ Security (Secure by Default)
  */
 
 import type { MoltbotConfig } from "./types.js";
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
+
+const log = getChildLogger("security-profiles");
+const execAsync = promisify(exec);
 
 // ============================================================================
 // Types
@@ -40,11 +49,11 @@ export type ProfileConfig = {
  * All security features enabled with no exceptions.
  * Suitable for production, enterprise, or sensitive data.
  *
- * Requirements:
- * - Docker must be installed (sandbox required)
- * - Memory encryption required
- * - Only signed skills allowed
- * - Network policies required per skill
+ * Features (enabled via CLI/setup):
+ * - Docker sandbox (required)
+ * - Memory encryption
+ * - Signed skills only
+ * - Network policies per skill
  * - Full monitoring (canaries + red team)
  *
  * Score: 100/100
@@ -58,103 +67,33 @@ export const MAXIMUM_PROFILE: ProfileConfig = {
   score: 100,
   layers: 14,
   settings: {
-    // Sandbox - REQUIRED
+    // Sandbox - all agents in Docker
     agents: {
       defaults: {
         sandbox: {
-          mode: "required", // Must have Docker
-          docker: {
-            privileged: false,
-            readOnlyRootFilesystem: true,
-            capDrop: ["ALL"],
-            seccomp: "default",
-            apparmor: "default",
-            network: "none",
-            tmpfs: ["/tmp", "/var/tmp", "/run"],
-          },
+          mode: "all",
+          workspaceAccess: "ro",
         },
       },
     },
 
-    // Skills - STRICT
-    skills: {
-      loadMode: "strict", // Only signed skills
-      autoNetworkPolicy: true,
-      runtime: "docker", // Force Docker
-    },
-
-    // Memory - REQUIRED
-    memory: {
-      autoEncrypt: true,
-      encryption: "aes-256-gcm",
-      storeInKeychain: true,
-    },
-
-    // Network - STRICT
-    network: {
-      defaultPolicy: "public-api",
-      blockPrivateIPs: true,
-      blockMetadata: true,
-      requirePolicyPerSkill: true,
-    },
-
-    // Security - FULL
-    security: {
-      monitoring: {
-        enabled: true,
-        canaryTokens: true,
-        redTeam: true,
-        redTeamInterval: 3600, // hourly
-      },
-      rbac: {
-        enabled: true,
-        defaultRole: "user",
-        requireApproval: true,
-      },
-      toxicFlows: {
-        enabled: true,
-        blockDangerous: true,
-      },
-      physicalSecurity: {
-        checkOnStartup: true,
-        requireDiskEncryption: true,
-      },
-    },
-
-    // Gateway
+    // Gateway - loopback only + token auth
     gateway: {
       bind: "loopback",
       auth: {
-        enabled: true,
-        requireToken: true,
-      },
-      rateLimit: {
-        enabled: true,
-        maxAttempts: 5,
-        windowMs: 300000,
-      },
-      csrf: {
-        enabled: true,
+        mode: "token",
       },
     },
 
-    // Logging
-    logging: {
-      security: {
-        enabled: true,
-        logAuth: true,
-        logToolUse: true,
-        logFileAccess: true,
-        logNetworkRequests: true,
-      },
-      redactSensitive: "all",
+    // Diagnostics - security alerts
+    diagnostics: {
+      securityAlerts: true,
     },
   },
   warnings: [
-    "⚠️ Docker is required (sandbox mode: required)",
-    "⚠️ Cannot run unsigned skills",
-    "⚠️ Network policies must be configured per skill",
-    "⚠️ Memory encryption required (passphrase needed)",
+    "⚠️ Docker is required (sandbox mode: all)",
+    "⚠️ Setup required: `moltbot setup --secure` to configure all protections",
+    "⚠️ Memory encryption, skill signing, and network policies must be configured separately",
   ],
 };
 
@@ -183,113 +122,47 @@ export const BALANCED_PROFILE: ProfileConfig = {
   layers: 12,
   recommended: true,
   settings: {
-    // Sandbox - AUTO
+    // Sandbox - non-main agents only (auto-detect Docker)
     agents: {
       defaults: {
         sandbox: {
-          mode: "auto", // Use Docker if available
-          docker: {
-            privileged: false,
-            readOnlyRootFilesystem: true,
-            capDrop: ["ALL"],
-            seccomp: "default",
-            apparmor: "default",
-          },
+          mode: "non-main",
+          workspaceAccess: "rw",
         },
       },
     },
 
-    // Skills - WARN
-    skills: {
-      loadMode: "warn", // Warn about unsigned, allow with approval
-      autoNetworkPolicy: true,
-      runtime: "auto",
-    },
-
-    // Memory - AUTO
-    memory: {
-      autoEncrypt: "prompt", // Ask on first run
-      encryption: "aes-256-gcm",
-      storeInKeychain: true,
-    },
-
-    // Network - AUTO
-    network: {
-      defaultPolicy: "public-api",
-      blockPrivateIPs: true,
-      blockMetadata: true,
-      autoApplyPresets: true,
-    },
-
-    // Security - STANDARD
-    security: {
-      monitoring: {
-        enabled: true,
-        canaryTokens: true,
-        redTeam: false, // Not automatic (can enable manually)
-      },
-      rbac: {
-        enabled: true,
-        defaultRole: "user",
-        requireApproval: true,
-      },
-      toxicFlows: {
-        enabled: true,
-        blockDangerous: false, // Warn instead
-      },
-      physicalSecurity: {
-        checkOnStartup: true,
-        requireDiskEncryption: false, // Warn only
-      },
-    },
-
-    // Gateway
+    // Gateway - loopback by default
     gateway: {
       bind: "loopback",
       auth: {
-        enabled: true,
-        requireToken: true,
-      },
-      rateLimit: {
-        enabled: true,
-        maxAttempts: 10,
-        windowMs: 300000,
-      },
-      csrf: {
-        enabled: true,
+        mode: "token",
       },
     },
 
-    // Logging
-    logging: {
-      security: {
-        enabled: true,
-        logAuth: true,
-        logToolUse: true,
-        logFileAccess: true,
-        logNetworkRequests: true,
-      },
-      redactSensitive: "tools",
+    // Diagnostics
+    diagnostics: {
+      securityAlerts: true,
     },
   },
   warnings: [
-    "⚠️ Unsigned skills allowed with manual approval",
-    "⚠️ Red team not automatic (enable with: moltbot security redteam start)",
+    "💡 Docker recommended but optional",
+    "💡 Run `moltbot setup --secure` to configure full protection",
   ],
 };
 
 /**
- * Development Profile (Pentagon)
+ * Development Security Profile (Pentagon)
  *
- * Minimal restrictions for local development.
- * NOT RECOMMENDED for production or sensitive data.
+ * Minimal restrictions for local development and testing.
+ * NOT suitable for production use.
  *
  * Features:
- * - Native runtime (no Docker)
- * - No encryption (plaintext)
- * - All skills allowed (including unsigned)
- * - Network warnings only (not enforced)
- * - Minimal monitoring (audit log only)
+ * - No sandboxing (native runtime)
+ * - No encryption
+ * - Permissive skill loading
+ * - Network warnings only
+ * - Minimal monitoring
  *
  * Score: 60/100
  * Layers: 4/14
@@ -298,92 +171,34 @@ export const DEVELOPMENT_PROFILE: ProfileConfig = {
   id: "development",
   name: "Development",
   badge: "Pentagon",
-  description: "חופש מקסימלי - למפתחים בלבד. אל תשתמש בייצור!",
+  description: "פיתוח מקומי - מינימום מגבלות. אסור לשימוש בייצור!",
   score: 60,
   layers: 4,
   settings: {
-    // Sandbox - OFF
+    // Sandbox - off
     agents: {
       defaults: {
         sandbox: {
-          mode: "main", // Native runtime
+          mode: "off",
         },
       },
     },
 
-    // Skills - PERMISSIVE
-    skills: {
-      loadMode: "permissive", // Allow all
-      autoNetworkPolicy: false,
-      runtime: "native",
-    },
-
-    // Memory - OFF
-    memory: {
-      autoEncrypt: false,
-      encryption: "none",
-    },
-
-    // Network - WARN ONLY
-    network: {
-      defaultPolicy: "unrestricted",
-      blockPrivateIPs: false,
-      blockMetadata: false,
-      enforcement: "warn", // Warn only, don't block
-    },
-
-    // Security - MINIMAL
-    security: {
-      monitoring: {
-        enabled: false,
-        canaryTokens: false,
-        redTeam: false,
-      },
-      rbac: {
-        enabled: false,
-      },
-      toxicFlows: {
-        enabled: false,
-      },
-      physicalSecurity: {
-        checkOnStartup: false,
-      },
-    },
-
-    // Gateway
+    // Gateway - localhost
     gateway: {
-      bind: "localhost",
-      auth: {
-        enabled: false, // No auth in dev
-      },
-      rateLimit: {
-        enabled: false,
-      },
-      csrf: {
-        enabled: false,
-      },
+      bind: "loopback",
     },
 
-    // Logging
-    logging: {
-      security: {
-        enabled: true,
-        logAuth: false,
-        logToolUse: false,
-        logFileAccess: false,
-        logNetworkRequests: false,
-      },
-      redactSensitive: "none",
+    // Diagnostics - warnings only
+    diagnostics: {
+      securityAlerts: false,
     },
   },
   warnings: [
-    "🚨 NO SANDBOXING - Skills run directly on your machine!",
-    "🚨 NO ENCRYPTION - All data stored in plaintext!",
-    "🚨 NO VERIFICATION - Any skill can run, including malicious ones!",
-    "🚨 NO NETWORK POLICIES - Skills can access any URL!",
-    "🚨 USE ONLY on isolated development machines!",
-    "🚨 DO NOT use with sensitive data!",
-    "🚨 DO NOT use in production!",
+    "⚠️ NOT FOR PRODUCTION USE",
+    "⚠️ No sandboxing - skills run with full system access",
+    "⚠️ No encryption - memory files stored in plaintext",
+    "⚠️ No network policies - unrestricted internet access",
   ],
 };
 
@@ -398,21 +213,44 @@ export const SECURITY_PROFILES: Record<SecurityProfile, ProfileConfig> = {
 };
 
 // ============================================================================
-// Profile Selection
+// Helper Functions
 // ============================================================================
 
 /**
- * Get profile by ID
+ * Apply a security profile to config
  */
-export function getProfile(id: SecurityProfile): ProfileConfig {
-  return SECURITY_PROFILES[id];
+export function applyProfile(
+  profile: SecurityProfile,
+  existingConfig: Partial<MoltbotConfig> = {}
+): MoltbotConfig {
+  const profileConfig = SECURITY_PROFILES[profile];
+
+  return {
+    ...existingConfig,
+    ...profileConfig.settings,
+    // Store profile metadata for reference
+    meta: {
+      ...existingConfig.meta,
+      securityProfile: profile,
+      lastTouchedVersion: existingConfig.meta?.lastTouchedVersion,
+      lastTouchedAt: new Date().toISOString(),
+    },
+  } as MoltbotConfig;
 }
 
 /**
- * Get recommended profile
+ * Get current profile from config
  */
-export function getRecommendedProfile(): ProfileConfig {
-  return BALANCED_PROFILE;
+export function getCurrentProfile(config: MoltbotConfig): SecurityProfile | null {
+  return ((config as any).meta?.securityProfile as SecurityProfile) || null;
+}
+
+/**
+ * Get recommended profile based on environment
+ */
+export function getRecommendedProfile(): SecurityProfile {
+  // Always recommend balanced for new users
+  return "balanced";
 }
 
 /**
@@ -423,65 +261,33 @@ export function getAllProfiles(): ProfileConfig[] {
 }
 
 /**
- * Apply profile to config
+ * Get profile by ID
  */
-export function applyProfile(
-  profile: SecurityProfile,
-  existingConfig: Partial<MoltbotConfig> = {}
-): MoltbotConfig {
-  const profileConfig = getProfile(profile);
-
-  log.info("Applying security profile", {
-    profile: profileConfig.name,
-    badge: profileConfig.badge,
-    score: profileConfig.score,
-  });
-
-  // Deep merge settings
-  const merged = {
-    ...existingConfig,
-    ...profileConfig.settings,
-    // Store profile metadata
-    security: {
-      ...existingConfig.security,
-      ...profileConfig.settings.security,
-      profile: {
-        id: profile,
-        name: profileConfig.name,
-        badge: profileConfig.badge,
-        appliedAt: new Date().toISOString(),
-      },
-    },
-  };
-
-  return merged as MoltbotConfig;
-}
-
-/**
- * Get current profile from config
- */
-export function getCurrentProfile(config: MoltbotConfig): SecurityProfile | null {
-  return (config.security as any)?.profile?.id || null;
+export function getProfile(id: SecurityProfile): ProfileConfig {
+  return SECURITY_PROFILES[id];
 }
 
 /**
  * Validate profile requirements
  */
-export async function validateProfile(profile: SecurityProfile): Promise<{
-  valid: boolean;
-  errors: string[];
-  warnings: string[];
-}> {
-  const profileConfig = getProfile(profile);
+export async function validateProfile(
+  profile: SecurityProfile
+): Promise<{ valid: boolean; errors: string[]; warnings: string[] }> {
   const errors: string[] = [];
-  const warnings: string[] = profileConfig.warnings || [];
+  const warnings: string[] = [];
+  const profileConfig = SECURITY_PROFILES[profile];
 
-  // Check Docker for Maximum profile
+  // Check Docker for maximum profile
   if (profile === "maximum") {
     const hasDocker = await checkDockerAvailable();
     if (!hasDocker) {
-      errors.push("Docker is required for Maximum profile");
+      errors.push("Docker is required for maximum security profile but not found");
     }
+  }
+
+  // Add profile warnings
+  if (profileConfig.warnings) {
+    warnings.push(...profileConfig.warnings);
   }
 
   return {
@@ -496,46 +302,9 @@ export async function validateProfile(profile: SecurityProfile): Promise<{
  */
 async function checkDockerAvailable(): Promise<boolean> {
   try {
-    const { execSync } = await import("node:child_process");
-    execSync("docker --version", { stdio: "ignore" });
+    await execAsync("docker --version");
     return true;
   } catch {
     return false;
   }
-}
-
-/**
- * Compare two profiles
- */
-export function compareProfiles(a: SecurityProfile, b: SecurityProfile): {
-  scoreDiff: number;
-  layersDiff: number;
-  moreSecure: SecurityProfile;
-} {
-  const profileA = getProfile(a);
-  const profileB = getProfile(b);
-
-  return {
-    scoreDiff: profileA.score - profileB.score,
-    layersDiff: profileA.layers - profileB.layers,
-    moreSecure: profileA.score >= profileB.score ? a : b,
-  };
-}
-
-// ============================================================================
-// Profile Info Display
-// ============================================================================
-
-export function getProfileSummary(profile: SecurityProfile): string {
-  const config = getProfile(profile);
-
-  return `
-${config.badge} - ${config.name}
-${config.description}
-
-Security Score: ${config.score}/100
-Defense Layers: ${config.layers}/14
-
-${config.warnings && config.warnings.length > 0 ? `\nWarnings:\n${config.warnings.join("\n")}` : ""}
-  `.trim();
 }

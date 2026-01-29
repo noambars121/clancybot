@@ -13,11 +13,13 @@
  * @see Phase 10 - Pentagon++++ Security
  */
 
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
+
+const log = getChildLogger("network-policy");
 
 // ============================================================================
 // Types

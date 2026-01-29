@@ -19,12 +19,12 @@ import {
   applyProfile,
   getCurrentProfile,
   validateProfile,
-  compareProfiles,
-  getProfileSummary,
   getRecommendedProfile,
 } from "../config/security-profiles.js";
-import { loadConfig, saveConfig } from "../config/config.js";
-import { log } from "../common/log.js";
+import { loadConfig, writeConfigFile } from "../config/config.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger("profile-select");
 
 // ============================================================================
 // Select Profile Command
@@ -121,7 +121,7 @@ export async function selectProfileCommand(profileId?: SecurityProfile): Promise
 
   const existingConfig = loadConfig();
   const newConfig = applyProfile(profile, existingConfig);
-  saveConfig(newConfig);
+  await writeConfigFile(newConfig);
 
   s.stop("Profile applied ✅");
 
@@ -173,9 +173,9 @@ export async function showProfileCommand(): Promise<void> {
   console.log(`Defense Layers: ${bold(green(String(profileConfig.layers)))}/14\n`);
 
   // Show configuration details
-  const metadata = (config.security as any)?.profile;
-  if (metadata?.appliedAt) {
-    console.log(`${dim("Applied:")} ${new Date(metadata.appliedAt).toLocaleString()}\n`);
+  const metadata = (config.meta as any)?.securityProfile;
+  if (config.meta?.lastTouchedAt) {
+    console.log(`${dim("Applied:")} ${new Date(config.meta.lastTouchedAt).toLocaleString()}\n`);
   }
 
   // Show warnings
@@ -232,7 +232,6 @@ export async function compareProfilesCommand(
 
   const configA = getProfile(profileA);
   const configB = getProfile(profileB);
-  const comparison = compareProfiles(profileA, profileB);
 
   console.log(`\n${bold("Profile A:")} ${configA.name} (${configA.badge})`);
   console.log(`Security Score: ${configA.score}/100`);
@@ -243,14 +242,18 @@ export async function compareProfilesCommand(
   console.log(`Defense Layers: ${configB.layers}/14\n`);
 
   console.log(`${bold("Comparison:")}`);
+  const scoreDiff = configA.score - configB.score;
+  const layersDiff = configA.layers - configB.layers;
+  const moreSecure = configA.score > configB.score ? profileA : profileB;
+  
   console.log(
-    `Score Difference: ${comparison.scoreDiff > 0 ? green(`+${comparison.scoreDiff}`) : red(String(comparison.scoreDiff))} (A vs B)`
+    `Score Difference: ${scoreDiff > 0 ? green(`+${scoreDiff}`) : red(String(scoreDiff))} (A vs B)`
   );
   console.log(
-    `Layers Difference: ${comparison.layersDiff > 0 ? green(`+${comparison.layersDiff}`) : red(String(comparison.layersDiff))} (A vs B)`
+    `Layers Difference: ${layersDiff > 0 ? green(`+${layersDiff}`) : red(String(layersDiff))} (A vs B)`
   );
   console.log(
-    `More Secure: ${bold(getProfile(comparison.moreSecure).name)}\n`
+    `More Secure: ${bold(getProfile(moreSecure).name)}\n`
   );
 
   outro(dim("Done"));

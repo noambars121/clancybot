@@ -9,13 +9,15 @@
  * @see Phase 9 - Pentagon+++ Security
  */
 
-import { log } from "../common/log.js";
+import { getChildLogger } from "../logging.js";
 import {
   ATTACKS,
   type Attack,
   type AttackCategory,
   getAttackStats,
 } from "./red-team-attacks.js";
+
+const log = getChildLogger("red-team");
 
 // ============================================================================
 // Types
