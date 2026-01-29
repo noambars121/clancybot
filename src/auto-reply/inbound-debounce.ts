@@ -66,10 +66,11 @@ export function createInboundDebouncer<T>(params: {
 
   const scheduleFlush = (key: string, buffer: DebounceBuffer<T>) => {
     if (buffer.timeout) clearTimeout(buffer.timeout);
-    buffer.timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       void flushBuffer(key, buffer);
     }, debounceMs) as unknown as NodeJS.Timeout;
-    buffer.timeout.unref?.();
+    timeout.unref?.();
+    buffer.timeout = timeout;
   };
 
   const enqueue = async (item: T) => {

@@ -101,7 +101,7 @@ export async function runTui(opts: TuiOptions) {
   let lastCtrlCAt = 0;
   let activityStatus = "idle";
   let connectionStatus = "connecting";
-  let statusTimeout: NodeJS.Timeout | null = null;
+  let statusTimeout: number | null = null;
   let statusTimer: NodeJS.Timeout | null = null;
   let statusStartedAt: number | null = null;
   let lastActivityStatus = activityStatus;
@@ -382,7 +382,7 @@ export async function runTui(opts: TuiOptions) {
     waitingTimer = setInterval(() => {
       if (activityStatus !== "waiting") return;
       updateBusyStatusMessage();
-    }, 120);
+    }, 120) as unknown as number;
   };
 
   const stopWaitingTimer = () => {
