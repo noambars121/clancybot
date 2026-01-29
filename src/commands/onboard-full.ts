@@ -35,9 +35,9 @@ export async function runFullOnboarding(): Promise<void> {
   const prompter = createClackPrompter();
 
   try {
-    await prompter.intro("🚀 Moltbot Full Setup Wizard");
+    await prompter.intro("🚀 ClancyBot Full Setup Wizard");
 
-    // Step 1: Run standard Moltbot onboarding (auth, channels, skills, gateway)
+    // Step 1: Run standard ClancyBot onboarding (auth, channels, skills, gateway)
     const opts: OnboardOptions = {
       flow: "advanced", // Use advanced mode for full control
     };

@@ -53,7 +53,7 @@ async function requireRiskAcknowledgement(params: {
     [
       "Security warning — please read.",
       "",
-      "Moltbot is a hobby project and still in beta. Expect sharp edges.",
+      "ClancyBot is a hobby project and still in beta. Expect sharp edges.",
       "This bot can read files and run actions if tools are enabled.",
       "A bad prompt can trick it into doing unsafe things.",
       "",
@@ -67,8 +67,8 @@ async function requireRiskAcknowledgement(params: {
       "- Use the strongest available model for any bot with tools or untrusted inboxes.",
       "",
       "Run regularly:",
-      "moltbot security audit --deep",
-      "moltbot security audit --fix",
+      "clancybot security audit --deep",
+      "clancybot security audit --fix",
       "",
       "Must read: https://docs.molt.bot/gateway/security",
     ].join("\n"),
@@ -90,7 +90,7 @@ export async function runOnboardingWizard(
   prompter: WizardPrompter,
 ) {
   printWizardHeader(runtime);
-  await prompter.intro("Moltbot onboarding");
+  await prompter.intro("ClancyBot onboarding");
   await requireRiskAcknowledgement({ opts, prompter });
 
   const snapshot = await readConfigFileSnapshot();
