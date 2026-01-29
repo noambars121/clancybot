@@ -142,7 +142,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   
   // SECURITY: Sanitize group subject and sender name to prevent prompt injection
-  const { sanitizeGroupName, sanitizeDisplayName } = await import("../../../security/prompt-injection-guard.js");
+  const { sanitizeGroupName, sanitizeDisplayName } = await import("../../security/prompt-injection-guard.js");
   const safeGroupSubject = groupChannel ? sanitizeGroupName(groupChannel) : undefined;
   const safeSenderDisplay = senderDisplay ? sanitizeDisplayName(senderDisplay) : undefined;
   
@@ -150,7 +150,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const channelDescription = channelInfo?.topic?.trim();
   
   // SECURITY: Sanitize channel topic to prevent prompt injection
-  const { sanitizeChannelTopic } = await import("../../../security/prompt-injection-guard.js");
+  const { sanitizeChannelTopic } = await import("../../security/prompt-injection-guard.js");
   const safeChannelDescription = channelDescription ? sanitizeChannelTopic(channelDescription) : null;
   
   const systemPromptParts = [

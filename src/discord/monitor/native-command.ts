@@ -738,7 +738,7 @@ async function dispatchDiscordCommandInteraction(params: {
           const channelDescription = channelTopic?.trim();
           
           // SECURITY: Sanitize channel topic to prevent prompt injection
-          const { sanitizeChannelTopic } = await import("../../../security/prompt-injection-guard.js");
+          const { sanitizeChannelTopic } = await import("../../security/prompt-injection-guard.js");
           const safeChannelDescription = channelDescription ? sanitizeChannelTopic(channelDescription) : null;
           
           const systemPromptParts = [
