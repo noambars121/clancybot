@@ -74,7 +74,7 @@ export function createTypingController(params: {
       if (!typingTimer) return;
       log?.(`typing TTL reached (${formatTypingTtl(typingTtlMs)}); stopping typing indicator`);
       cleanup();
-    }, typingTtlMs);
+    }, typingTtlMs) as unknown as NodeJS.Timeout;
   };
 
   const isActive = () => active && !sealed;
@@ -114,7 +114,7 @@ export function createTypingController(params: {
     await ensureStart();
     typingTimer = setInterval(() => {
       void triggerTyping();
-    }, typingIntervalMs);
+    }, typingIntervalMs) as unknown as NodeJS.Timeout;
   };
 
   const startTypingOnText = async (text?: string) => {

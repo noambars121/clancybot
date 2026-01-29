@@ -245,7 +245,7 @@ function pruneFinishedSessions() {
 
 function startSweeper() {
   if (sweeper) return;
-  sweeper = setInterval(pruneFinishedSessions, Math.max(30_000, jobTtlMs / 6));
+  sweeper = setInterval(pruneFinishedSessions, Math.max(30_000, jobTtlMs / 6)) as unknown as NodeJS.Timeout;
   sweeper.unref?.();
 }
 

@@ -56,7 +56,7 @@ const withTimeout = async <T>(
   if (!timeoutMs || timeoutMs <= 0) return promise;
   let timer: NodeJS.Timeout | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(timeoutError), timeoutMs);
+    timer = setTimeout(() => reject(timeoutError), timeoutMs) as unknown as NodeJS.Timeout;
   });
   try {
     return await Promise.race([promise, timeoutPromise]);

@@ -126,7 +126,7 @@ function startSweeper() {
   if (sweeper) return;
   sweeper = setInterval(() => {
     void sweepSubagentRuns();
-  }, 60_000);
+  }, 60_000) as unknown as NodeJS.Timeout;
   sweeper.unref?.();
 }
 

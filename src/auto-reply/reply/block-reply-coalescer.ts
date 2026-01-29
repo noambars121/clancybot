@@ -41,7 +41,7 @@ export function createBlockReplyCoalescer(params: {
     clearIdleTimer();
     idleTimer = setTimeout(() => {
       void flush({ force: false });
-    }, idleMs);
+    }, idleMs) as unknown as NodeJS.Timeout;
   };
 
   const flush = async (options?: { force?: boolean }) => {
