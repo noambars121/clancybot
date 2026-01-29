@@ -31,7 +31,7 @@ export function resolveInboundDebounceMs(params: {
 
 type DebounceBuffer<T> = {
   items: T[];
-  timeout: ReturnType<typeof setTimeout> | null;
+  timeout: number | null;
 };
 
 export function createInboundDebouncer<T>(params: {

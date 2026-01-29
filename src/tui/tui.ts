@@ -382,7 +382,8 @@ export async function runTui(opts: TuiOptions) {
     waitingTimer = setInterval(() => {
       if (activityStatus !== "waiting") return;
       updateBusyStatusMessage();
-    }, 120) as unknown as number;
+    }, 120);
+    (waitingTimer as any).unref?.();
   };
 
   const stopWaitingTimer = () => {
@@ -428,7 +429,7 @@ export async function runTui(opts: TuiOptions) {
       statusTimeout = setTimeout(() => {
         connectionStatus = isConnected ? "connected" : "disconnected";
         renderStatus();
-      }, ttlMs) as unknown as NodeJS.Timeout;
+      }, ttlMs) as unknown as number;
     }
   };
 
