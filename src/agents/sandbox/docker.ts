@@ -83,7 +83,7 @@ function validateSetupCommand(command: string): void {
     return; // Empty command is OK
   }
   
-  const analysis = analyzeShellCommand(command);
+  const analysis = analyzeShellCommand({ command });
   if (!analysis.ok) {
     throw new Error(
       `Dangerous Docker setup command rejected: ${analysis.reason}\n` +
