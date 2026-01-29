@@ -11,7 +11,6 @@
  */
 
 import { intro, outro, select, confirm, note, spinner } from "@clack/prompts";
-import { bold, cyan, green, yellow, red, dim } from "kleur/colors";
 import {
   type SecurityProfile,
   getAllProfiles,
@@ -23,6 +22,14 @@ import {
 } from "../config/security-profiles.js";
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { getChildLogger } from "../logging.js";
+
+// Color helpers (simple passthrough)
+const bold = (s: string) => s;
+const cyan = (s: string) => s;
+const green = (s: string) => s;
+const yellow = (s: string) => s;
+const red = (s: string) => s;
+const dim = (s: string) => s;
 
 const log = getChildLogger({ module: "profile-select" });
 

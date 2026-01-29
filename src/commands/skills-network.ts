@@ -12,7 +12,6 @@
  */
 
 import { intro, outro, text, select, confirm, spinner, note } from "@clack/prompts";
-import { bold, cyan, green, red, dim, yellow } from "kleur/colors";
 import {
   NetworkPolicyManager,
   POLICY_PRESETS,
@@ -20,6 +19,14 @@ import {
   type PolicyMode,
 } from "../skills/network-policy.js";
 import { NetworkEnforcer } from "../skills/network-enforcer.js";
+
+// Color helpers (simple passthrough)
+const bold = (s: string) => s;
+const cyan = (s: string) => s;
+const green = (s: string) => s;
+const yellow = (s: string) => s;
+const red = (s: string) => s;
+const dim = (s: string) => s;
 
 // ============================================================================
 // Show Policy Command

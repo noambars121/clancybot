@@ -15,7 +15,14 @@ import { password, confirm, spinner, note, intro, outro } from "@clack/prompts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { bold, cyan, green, yellow, red, dim } from "kleur/colors";
+
+// Color helpers (simple passthrough)
+const bold = (s: string) => s;
+const cyan = (s: string) => s;
+const green = (s: string) => s;
+const yellow = (s: string) => s;
+const red = (s: string) => s;
+const dim = (s: string) => s;
 import {
   validatePassphrase,
   migrateDirectory,

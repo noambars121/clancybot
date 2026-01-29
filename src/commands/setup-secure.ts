@@ -16,7 +16,6 @@
  */
 
 import { intro, outro, select, confirm, spinner, note } from "@clack/prompts";
-import { bold, cyan, green, yellow, red, dim } from "kleur/colors";
 import { randomBytes } from "node:crypto";
 import type { MoltbotConfig } from "../config/types.js";
 import { loadConfig, writeConfigFile } from "../config/config.js";
@@ -44,9 +43,9 @@ function generateSecureToken(): string {
 // ============================================================================
 
 async function stepIntro(): Promise<void> {
-  intro(bold(cyan("🔒 Moltbot Secure Setup Wizard")));
+  intro("🔒 Moltbot Secure Setup Wizard");
   note(
-    `This wizard will configure Moltbot with Pentagon-level security.\n\n${dim("Features:")}\n• ${green("✓")} 3 Security Profiles (Maximum/Balanced/Development)\n• ${green("✓")} Auto-generated secure tokens\n• ${green("✓")} Docker sandbox isolation\n• ${green("✓")} Memory encryption\n• ${green("✓")} Network policies\n• ${green("✓")} Comprehensive monitoring`,
+    `This wizard will configure Moltbot with Pentagon-level security.\n\nFeatures:\n• ✓ 3 Security Profiles (Maximum/Balanced/Development)\n• ✓ Auto-generated secure tokens\n• ✓ Docker sandbox isolation\n• ✓ Memory encryption\n• ✓ Network policies\n• ✓ Comprehensive monitoring`,
     "Welcome",
   );
 }
@@ -55,17 +54,17 @@ async function stepSelectProfile(): Promise<SecurityProfile> {
   const profiles = getAllProfiles();
 
   note(
-    `${bold("Choose your security profile:")}\n\n` +
-      `${bold(cyan("Maximum (Pentagon++++)"))}\n` +
+    `Choose your security profile:\n\n` +
+      `Maximum (Pentagon++++)\n` +
       `  • All protections required\n` +
       `  • Docker mandatory\n` +
       `  • Only signed skills\n` +
       `  • Score: 100/100, Layers: 14/14\n\n` +
-      `${bold(green("Balanced (Pentagon+++) [RECOMMENDED]"))}\n` +
+      `Balanced (Pentagon+++) [RECOMMENDED]\n` +
       `  • Auto-detects features\n` +
       `  • Flexible but secure\n` +
       `  • Score: 95/100, Layers: 12/14\n\n` +
-      `${bold(yellow("Development (Pentagon)"))}\n` +
+      `Development (Pentagon)\n` +
       `  • Minimal restrictions\n` +
       `  • For local dev only\n` +
       `  • Score: 60/100, Layers: 4/14`,
@@ -103,12 +102,12 @@ async function stepValidateProfile(profile: SecurityProfile): Promise<boolean> {
   s.stop("Validation complete");
 
   if (validation.errors.length > 0) {
-    note(red(validation.errors.join("\n")), "Errors");
+    note(validation.errors.join("\n"), "⚠️ Errors");
     return false;
   }
 
   if (validation.warnings.length > 0) {
-    note(yellow(validation.warnings.join("\n")), "Warnings");
+    note(validation.warnings.join("\n"), "⚠️ Warnings");
   }
 
   return true;
@@ -136,7 +135,7 @@ async function stepCustomizeSettings(cfg: MoltbotConfig): Promise<void> {
     cfg.gateway.auth = { mode: "token", token };
 
     note(
-      `${green("✓")} Token: ${bold(token)}\n${dim("Save this token - you'll need it to connect!")}`,
+      `✓ Token: ${token}\n\nSave this token - you'll need it to connect!`,
       "Authentication",
     );
   }
@@ -155,7 +154,7 @@ export async function runSecureSetup(): Promise<void> {
   // Step 2: Validate profile
   const valid = await stepValidateProfile(profile);
   if (!valid) {
-    outro(red("Setup cancelled - profile requirements not met"));
+    outro("⚠️ Setup cancelled - profile requirements not met");
     return;
   }
 
@@ -182,17 +181,17 @@ export async function runSecureSetup(): Promise<void> {
   const profileConfig = getAllProfiles().find((p) => p.id === profile)!;
 
   note(
-    `${green("✓")} Profile: ${bold(profileConfig.name)} (${profileConfig.badge})\n` +
-      `${green("✓")} Security Score: ${bold(String(profileConfig.score))}/100\n` +
-      `${green("✓")} Defense Layers: ${bold(String(profileConfig.layers))}/14\n\n` +
-      `${dim("Next steps:")}\n` +
-      `• Run ${cyan("moltbot gateway")} to start\n` +
-      `• Run ${cyan("moltbot setup --secure-extra")} for advanced features\n` +
-      `• Run ${cyan("moltbot security-dashboard")} to monitor`,
+    `✓ Profile: ${profileConfig.name} (${profileConfig.badge})\n` +
+      `✓ Security Score: ${String(profileConfig.score)}/100\n` +
+      `✓ Defense Layers: ${String(profileConfig.layers)}/14\n\n` +
+      `Next steps:\n` +
+      `• Run 'moltbot gateway' to start\n` +
+      `• Run 'moltbot setup --secure-extra' for advanced features\n` +
+      `• Run 'moltbot security-dashboard' to monitor`,
     "Setup Complete! 🎉",
   );
 
-  outro(green("Moltbot is now configured with Pentagon-level security! 🛡️"));
+  outro("Moltbot is now configured with Pentagon-level security! 🛡️");
 
   log.info("Secure setup completed", {
     profile: profileConfig.name,

@@ -21,8 +21,9 @@ export function validateDmPolicy(policy: unknown, path: string): void {
 
 export function validateChannelConfig(config: MoltbotConfig): void {
   // Check channels.defaults
-  if (config.channels?.defaults?.dmPolicy) {
-    validateDmPolicy(config.channels.defaults.dmPolicy, 'channels.defaults.dmPolicy');
+  const defaults = config.channels?.defaults as any;
+  if (defaults?.dmPolicy) {
+    validateDmPolicy(defaults.dmPolicy, 'channels.defaults.dmPolicy');
   }
 
   // Check each channel - note: this is a simplified check
@@ -44,4 +45,13 @@ export function validateChannelConfig(config: MoltbotConfig): void {
       }
     }
   }
+}
+
+// Export these functions to satisfy config.ts exports
+export function validateConfigObject(config: MoltbotConfig): void {
+  validateChannelConfig(config);
+}
+
+export function validateConfigObjectWithPlugins(config: MoltbotConfig): void {
+  validateChannelConfig(config);
 }

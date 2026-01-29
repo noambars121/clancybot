@@ -10,11 +10,18 @@
  */
 
 import { intro, outro, text, select, confirm, spinner, note } from "@clack/prompts";
-import { bold, cyan, green, red, dim, yellow } from "kleur/colors";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+
+// Color helpers (simple passthrough)
+const bold = (s: string) => s;
+const cyan = (s: string) => s;
+const green = (s: string) => s;
+const yellow = (s: string) => s;
+const red = (s: string) => s;
+const dim = (s: string) => s;
 import {
   CanaryTokenManager,
   DEFAULT_CANARY_CONFIG,
