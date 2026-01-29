@@ -19,7 +19,7 @@ import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from "node:
 import { readFile, writeFile, stat } from "node:fs/promises";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("memory-encryption-at-rest");
+const log = getChildLogger({ module: "memory-encryption-at-rest" });
 
 // ============================================================================
 // Types

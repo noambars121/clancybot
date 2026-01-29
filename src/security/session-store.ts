@@ -4,7 +4,7 @@
 
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
-import { resolveStatePath } from "../config/user-paths.js";
+import { resolveStateDir } from "../config/paths.js";
 
 export interface ActiveSession {
   sessionId: string;
@@ -34,7 +34,7 @@ export class SessionStore {
   private loaded = false;
 
   constructor() {
-    this.storePath = join(resolveStatePath(), "sessions.json");
+    this.storePath = join(resolveStateDir(), "sessions.json");
   }
 
   /**

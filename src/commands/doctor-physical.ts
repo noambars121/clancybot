@@ -18,7 +18,9 @@ import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { promisify } from "node:util";
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger({ module: "doctor-physical" });
 
 const exec = promisify(execCallback);
 

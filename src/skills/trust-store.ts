@@ -16,7 +16,7 @@ import { homedir } from "node:os";
 import { getChildLogger } from "../logging.js";
 import { TrustLevel, getKeyFingerprint } from "./signing.js";
 
-const log = getChildLogger("trust-store");
+const log = getChildLogger({ module: "trust-store" });
 
 // ============================================================================
 // Types

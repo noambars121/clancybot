@@ -16,7 +16,7 @@ import { join } from "node:path";
 import { getChildLogger } from "../logging.js";
 import type { MoltbotConfig } from "../config/types.js";
 
-const log = getChildLogger("canary-tokens");
+const log = getChildLogger({ module: "canary-tokens" });
 
 // ============================================================================
 // Types
@@ -423,7 +423,7 @@ export const DEFAULT_CANARY_CONFIG: CanaryConfig = {
 export function createCanaryManager(config: MoltbotConfig): CanaryTokenManager {
   const canaryConfig: CanaryConfig = {
     ...DEFAULT_CANARY_CONFIG,
-    ...(config.security?.canary as Partial<CanaryConfig> | undefined),
+    ...((config as any).security?.canary as Partial<CanaryConfig> | undefined),
   };
 
   return new CanaryTokenManager(canaryConfig);

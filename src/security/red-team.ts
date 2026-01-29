@@ -17,7 +17,7 @@ import {
   getAttackStats,
 } from "./red-team-attacks.js";
 
-const log = getChildLogger("red-team");
+const log = getChildLogger({ module: "red-team" });
 
 // ============================================================================
 // Types

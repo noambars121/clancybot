@@ -21,7 +21,7 @@ import { securityLogger } from "../security/advanced-security.js";
 import { listPendingApprovals, approveRequest, denyRequest, getApprovalHistory } from "../security/approval-manager.js";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("security-dashboard-api");
+const log = getChildLogger({ module: "security-dashboard-api" });
 
 // ============================================================================
 // Types
@@ -81,7 +81,7 @@ function calculateSecurityScore(): SecurityScore {
   const checks: SecurityCheck[] = [];
 
   // Check 1: Gateway Authentication
-  const authEnabled = cfg.gateway?.auth?.enabled === true;
+  const authEnabled = cfg.gateway?.auth?.mode === "token" || cfg.gateway?.auth?.mode === "password";
   checks.push({
     id: "auth",
     label: "Gateway Authentication",
@@ -92,7 +92,7 @@ function calculateSecurityScore(): SecurityScore {
   if (!authEnabled) score -= 20;
 
   // Check 2: DM Policy
-  const dmPolicy = cfg.channels?.["*"]?.dmPolicy;
+  const dmPolicy = (cfg.channels as any)?.["*"]?.dmPolicy;
   const secureDmPolicy = dmPolicy === "pairing" || dmPolicy === "disabled" || dmPolicy === "allowlist";
   checks.push({
     id: "dm_policy",
@@ -115,7 +115,7 @@ function calculateSecurityScore(): SecurityScore {
   if (!sandboxEnabled) score -= 20;
 
   // Check 4: Secrets Encryption
-  const secretsEncrypted = cfg.security?.secrets?.encryption === "aes-256-gcm";
+  const secretsEncrypted = (cfg as any).security?.secrets?.encryption === "aes-256-gcm";
   checks.push({
     id: "secrets",
     label: "Secrets Encryption",
@@ -126,7 +126,7 @@ function calculateSecurityScore(): SecurityScore {
   if (!secretsEncrypted) score -= 15;
 
   // Check 5: Browser Profile Validation
-  const browserValidation = cfg.security?.browser?.profileValidation === true;
+  const browserValidation = (cfg as any).security?.browser?.profileValidation === true;
   checks.push({
     id: "browser",
     label: "Browser Profile Validation",
@@ -137,7 +137,7 @@ function calculateSecurityScore(): SecurityScore {
   if (!browserValidation) score -= 10;
 
   // Check 6: Skills Verification
-  const skillsVerification = cfg.security?.skills?.verification === true;
+  const skillsVerification = (cfg as any).security?.skills?.verification === true;
   checks.push({
     id: "skills",
     label: "Skills Verification",
@@ -148,7 +148,7 @@ function calculateSecurityScore(): SecurityScore {
   if (!skillsVerification) score -= 5;
 
   // Check 7: Rate Limiting
-  const rateLimiting = cfg.gateway?.rateLimit?.enabled === true;
+  const rateLimiting = (cfg.gateway as any)?.rateLimit?.enabled === true;
   checks.push({
     id: "rate_limit",
     label: "Rate Limiting",
@@ -169,7 +169,7 @@ function calculateSecurityScore(): SecurityScore {
   });
 
   // Check 9: Output Validation
-  const outputValidation = cfg.security?.output?.validation === true;
+  const outputValidation = (cfg as any).security?.output?.validation === true;
   checks.push({
     id: "output_validation",
     label: "Output Validation",
@@ -180,7 +180,7 @@ function calculateSecurityScore(): SecurityScore {
   if (!outputValidation) score -= 10;
 
   // Check 10: SSRF Protection
-  const ssrfProtection = cfg.security?.network?.ssrfProtection === true;
+  const ssrfProtection = (cfg as any).security?.network?.ssrfProtection === true;
   checks.push({
     id: "ssrf",
     label: "SSRF Protection",

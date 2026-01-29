@@ -13,11 +13,13 @@
  * @module security/rbac
  */
 
-import { log } from "../logging.js";
-import type { MoltbotConfig } from "../config/schema.js";
+import { getChildLogger } from "../logging.js";
+import type { MoltbotConfig } from "../config/types.js";
 import { existsSync } from "node:fs";
 import { resolve, normalize } from "node:path";
 import { homedir } from "node:os";
+
+const log = getChildLogger({ module: "rbac" });
 
 // ============================================================================
 // Types

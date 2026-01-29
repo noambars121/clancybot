@@ -23,7 +23,7 @@ import { join, basename } from "node:path";
 import { homedir } from "node:os";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("memory-doctor");
+const log = getChildLogger({ module: "memory-doctor" });
 
 // ============================================================================
 // Types

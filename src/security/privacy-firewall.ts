@@ -16,7 +16,7 @@
 import { PIIDetector, type PIIEntity, type PIIScanResult } from "./pii-detection.js";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("privacy-firewall");
+const log = getChildLogger({ module: "privacy-firewall" });
 
 // ============================================================================
 // Types

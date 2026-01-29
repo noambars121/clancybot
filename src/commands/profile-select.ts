@@ -24,7 +24,7 @@ import {
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("profile-select");
+const log = getChildLogger({ module: "profile-select" });
 
 // ============================================================================
 // Select Profile Command
@@ -49,7 +49,7 @@ export async function selectProfileCommand(profileId?: SecurityProfile): Promise
         label: `${p.name} (${p.badge})`,
         hint: p.description + ` | Score: ${p.score}/100, Layers: ${p.layers}/14`,
       })),
-      initialValue: getRecommendedProfile().id,
+      initialValue: getRecommendedProfile(),
     })) as SecurityProfile;
   }
 

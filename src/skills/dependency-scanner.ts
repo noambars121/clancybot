@@ -16,7 +16,9 @@ import { exec as execCallback } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger({ module: "dependency-scanner" });
 
 const exec = promisify(execCallback);
 

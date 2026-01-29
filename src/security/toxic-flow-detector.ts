@@ -15,7 +15,9 @@
  * @module security/toxic-flow-detector
  */
 
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger({ module: "toxic-flow-detector" });
 
 // ============================================================================
 // Types

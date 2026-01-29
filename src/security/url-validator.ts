@@ -12,7 +12,9 @@
  * @module security/url-validator
  */
 
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger({ module: "url-validator" });
 
 // ============================================================================
 // Types

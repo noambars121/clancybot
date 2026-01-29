@@ -18,7 +18,7 @@ import { existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("skills-signing");
+const log = getChildLogger({ module: "skills-signing" });
 
 // ============================================================================
 // Types

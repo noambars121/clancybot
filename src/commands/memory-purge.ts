@@ -14,7 +14,7 @@ import { bold, cyan, green, red, dim, yellow } from "kleur/colors";
 import { MemoryDoctor, type MemoryMatch, type PurgeOptions } from "../memory/memory-doctor.js";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("memory-purge");
+const log = getChildLogger({ module: "memory-purge" });
 
 // ============================================================================
 // Purge Command

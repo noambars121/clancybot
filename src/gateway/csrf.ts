@@ -13,7 +13,7 @@ import { randomBytes } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("csrf");
+const log = getChildLogger({ module: "csrf" });
 
 // ============================================================================
 // Types
@@ -126,7 +126,14 @@ export class CSRFManager {
 export function getSessionId(req: IncomingMessage): string {
   // Try to get from cookie or header
   const cookies = parseCookies(req);
-  return cookies.sessionId || req.headers["x-session-id"] || "anonymous";
+  let sessionId = cookies.sessionId || req.headers["x-session-id"] || "anonymous";
+  
+  // Handle array case (multiple cookies/headers with same name)
+  if (Array.isArray(sessionId)) {
+    sessionId = sessionId[0];
+  }
+  
+  return sessionId as string;
 }
 
 /**

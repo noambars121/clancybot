@@ -13,7 +13,9 @@
  * @module security/output-validator
  */
 
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger({ module: "output-validator" });
 
 // ============================================================================
 // Types

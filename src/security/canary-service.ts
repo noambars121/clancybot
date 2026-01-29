@@ -15,7 +15,7 @@ import { URL } from "node:url";
 import { getChildLogger } from "../logging.js";
 import type { CanaryAccess } from "./canary-tokens.js";
 
-const log = getChildLogger("canary-service");
+const log = getChildLogger({ module: "canary-service" });
 
 // ============================================================================
 // Types

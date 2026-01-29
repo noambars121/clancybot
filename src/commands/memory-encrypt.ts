@@ -24,7 +24,7 @@ import {
 import { readFile, writeFile } from "node:fs/promises";
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("memory-encrypt");
+const log = getChildLogger({ module: "memory-encrypt" });
 
 // ============================================================================
 // Config

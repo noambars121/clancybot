@@ -13,7 +13,7 @@
 
 import { getChildLogger } from "../logging.js";
 
-const log = getChildLogger("vector-purge");
+const log = getChildLogger({ module: "vector-purge" });
 
 // ============================================================================
 // Types

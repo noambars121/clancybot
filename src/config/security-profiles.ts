@@ -18,7 +18,7 @@ import { getChildLogger } from "../logging.js";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 
-const log = getChildLogger("security-profiles");
+const log = getChildLogger({ module: "security-profiles" });
 const execAsync = promisify(exec);
 
 // ============================================================================
@@ -85,10 +85,7 @@ export const MAXIMUM_PROFILE: ProfileConfig = {
       },
     },
 
-    // Diagnostics - security alerts
-    diagnostics: {
-      securityAlerts: true,
-    },
+    // Diagnostics - use defaults
   },
   warnings: [
     "⚠️ Docker is required (sandbox mode: all)",
@@ -140,10 +137,7 @@ export const BALANCED_PROFILE: ProfileConfig = {
       },
     },
 
-    // Diagnostics
-    diagnostics: {
-      securityAlerts: true,
-    },
+    // Diagnostics - use defaults
   },
   warnings: [
     "💡 Docker recommended but optional",
@@ -189,10 +183,7 @@ export const DEVELOPMENT_PROFILE: ProfileConfig = {
       bind: "loopback",
     },
 
-    // Diagnostics - warnings only
-    diagnostics: {
-      securityAlerts: false,
-    },
+    // Diagnostics - use defaults
   },
   warnings: [
     "⚠️ NOT FOR PRODUCTION USE",

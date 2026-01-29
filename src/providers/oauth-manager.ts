@@ -17,9 +17,9 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { getChildLogger } from "../logging/logger.js";
-import { resolveStateDir } from "../config/state-dir.js";
+import { resolveStateDir } from "../config/paths.js";
 
-const log = getChildLogger("oauth-manager");
+const log = getChildLogger({ module: "oauth-manager" });
 
 export interface OAuthToken {
   access: string;

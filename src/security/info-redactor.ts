@@ -13,8 +13,10 @@
  * @module security/info-redactor
  */
 
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
 import { homedir } from "node:os";
+
+const log = getChildLogger({ module: "info-redactor" });
 
 // ============================================================================
 // Types

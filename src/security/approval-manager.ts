@@ -14,9 +14,11 @@
  * @module security/approval-manager
  */
 
-import { log } from "../logging.js";
-import type { MoltbotConfig } from "../config/schema.js";
+import { getChildLogger } from "../logging.js";
+import type { MoltbotConfig } from "../config/types.js";
 import { isSensitivePath } from "./rbac.js";
+
+const log = getChildLogger({ module: "approval-manager" });
 
 // ============================================================================
 // Types

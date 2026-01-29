@@ -9,7 +9,9 @@
  * @module security/advanced-security
  */
 
-import { log } from "../logging.js";
+import { getChildLogger } from "../logging.js";
+
+const log = getChildLogger({ module: "advanced-security" });
 
 // ============================================================================
 // DoS Protection (LLM04)
@@ -338,9 +340,9 @@ class SecurityLogger {
       if (filters.success !== undefined) {
         filtered = filtered.filter((e) => e.success === filters.success);
       }
-      if (filters.since) {
-        filtered = filtered.filter((e) => e.timestamp >= filters.since);
-      }
+    if (filters.since !== undefined) {
+      filtered = filtered.filter((e) => e.timestamp >= filters.since!);
+    }
       if (filters.limit) {
         filtered = filtered.slice(-filters.limit);
       }
