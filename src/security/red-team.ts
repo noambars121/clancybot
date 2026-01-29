@@ -96,7 +96,7 @@ export class RedTeamRunner {
       this.runRedTeam().catch((err) => {
         log.error("Red team run failed", { error: err });
       });
-    }, this.config.intervalMs) as NodeJS.Timeout;
+    }, this.config.intervalMs) as unknown as NodeJS.Timeout;
   }
 
   /**

@@ -113,7 +113,7 @@ export function assessOperationRisk(
   // Network requests to non-allowlisted hosts
   if (operation === "fetch" || operation === "browser_navigate") {
     const url = typeof args.url === "string" ? args.url : "";
-    const allowedHosts = cfg.security?.network?.allowedHosts ?? [];
+    const allowedHosts = (cfg as any).security?.network?.allowedHosts ?? [];
     
     if (allowedHosts.length > 0) {
       try {

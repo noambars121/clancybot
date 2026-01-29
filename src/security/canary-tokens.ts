@@ -297,7 +297,7 @@ export class CanaryTokenManager {
           await this.handleAlert(alert);
         }
       }
-    }, this.config.checkIntervalMs) as NodeJS.Timeout;
+    }, this.config.checkIntervalMs) as unknown as NodeJS.Timeout;
   }
 
   /**
