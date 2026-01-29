@@ -36,8 +36,10 @@ export interface ModelOverride {
 export function hasSessionModelOverride(
   session: SessionEntry | undefined,
 ): boolean {
-  if (!session || !session.model) return false;
-  return typeof session.model === "object" && Boolean(session.model.provider || session.model.model);
+  if (!session) return false;
+  const model = (session as any).model;
+  if (!model) return false;
+  return typeof model === "object" && Boolean(model.provider || model.model);
 }
 
 /**
@@ -48,11 +50,11 @@ export function getSessionModelOverride(
 ): ModelOverride | null {
   if (!hasSessionModelOverride(session)) return null;
   
-  const model = session!.model;
+  const model = (session as any).model;
   if (!model || typeof model !== "object") return null;
   
-  const provider = (model as { provider?: string }).provider;
-  const modelId = (model as { model?: string }).model;
+  const provider = model.provider;
+  const modelId = model.model;
   
   if (!provider || !modelId) return null;
   
@@ -137,7 +139,7 @@ export async function setSessionModelOverride(
   const storePath = resolveStorePath(cfg.session?.store);
   
   await updateSessionStore(storePath, (store) => {
-    const entry = store[sessionKey] || {};
+    const entry: any = store[sessionKey] || {};
     entry.model = {
       provider: override.provider,
       model: override.model,
