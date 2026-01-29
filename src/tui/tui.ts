@@ -379,12 +379,10 @@ export async function runTui(opts: TuiOptions) {
 
     waitingTick = 0;
 
-    const timer = setInterval(() => {
+    waitingTimer = setInterval(() => {
       if (activityStatus !== "waiting") return;
       updateBusyStatusMessage();
     }, 120) as unknown as number;
-    (timer as any).unref?.();
-    waitingTimer = timer;
   };
 
   const stopWaitingTimer = () => {

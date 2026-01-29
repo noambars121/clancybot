@@ -82,7 +82,7 @@ export async function resolveDiscordTarget(
   if (!trimmed) return undefined;
 
   // If already a known format, parse directly
-  const directParse = parseDiscordTarget(trimmed, options);
+  const directParse = parseDiscordTarget(trimmed);
   if (directParse && directParse.kind !== "channel" && !isLikelyUsername(trimmed)) {
     return directParse;
   }
@@ -107,7 +107,7 @@ export async function resolveDiscordTarget(
   }
 
   // Fallback to original parsing (for channels, etc.)
-  return parseDiscordTarget(trimmed, options);
+  return parseDiscordTarget(trimmed);
 }
 
 /**
