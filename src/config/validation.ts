@@ -47,11 +47,37 @@ export function validateChannelConfig(config: MoltbotConfig): void {
   }
 }
 
+// Validation result type
+export type ValidationResult = {
+  ok: boolean;
+  issues: Array<{ path?: string; message: string }>;
+  warnings: Array<{ path?: string; message: string }>;
+  config: MoltbotConfig;
+};
+
 // Export these functions to satisfy config.ts exports
-export function validateConfigObject(config: MoltbotConfig): void {
-  validateChannelConfig(config);
+export function validateConfigObject(config: MoltbotConfig): ValidationResult {
+  const issues: Array<{ path?: string; message: string }> = [];
+  const warnings: Array<{ path?: string; message: string }> = [];
+  
+  try {
+    validateChannelConfig(config);
+  } catch (err) {
+    if (err instanceof ConfigValidationError) {
+      issues.push({ path: err.path, message: err.message });
+    } else {
+      issues.push({ message: String(err) });
+    }
+  }
+  
+  return {
+    ok: issues.length === 0,
+    issues,
+    warnings,
+    config,
+  };
 }
 
-export function validateConfigObjectWithPlugins(config: MoltbotConfig): void {
-  validateChannelConfig(config);
+export function validateConfigObjectWithPlugins(config: MoltbotConfig): ValidationResult {
+  return validateConfigObject(config);
 }

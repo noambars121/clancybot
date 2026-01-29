@@ -211,12 +211,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       }
       const raw = deps.fs.readFileSync(configPath, "utf-8");
       const parsed = deps.json5.parse(raw);
-      
-      // Phase 1: Decrypt sensitive fields after parsing
-      const decrypted = await decryptSensitiveFields(parsed);
 
       // Resolve $include directives before validation
-      const resolved = resolveConfigIncludes(decrypted, configPath, {
+      const resolved = resolveConfigIncludes(parsed, configPath, {
         readFile: (p) => deps.fs.readFileSync(p, "utf-8"),
         parseJson: (raw) => deps.json5.parse(raw),
       });
