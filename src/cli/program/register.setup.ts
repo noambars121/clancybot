@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { onboardCommand } from "../../commands/onboard.js";
 import { setupCommand } from "../../commands/setup.js";
+import { runFullOnboarding } from "../../commands/onboard-full.js";
 import { defaultRuntime } from "../../runtime.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { theme } from "../../terminal/theme.js";
@@ -21,12 +22,19 @@ export function registerSetupCommand(program: Command) {
       "Agent workspace directory (default: ~/clawd; stored as agents.defaults.workspace)",
     )
     .option("--wizard", "Run the interactive onboarding wizard", false)
+    .option("--full", "Run comprehensive setup wizard (AI, channels, skills, security)", false)
     .option("--non-interactive", "Run the wizard without prompts", false)
     .option("--mode <mode>", "Wizard mode: local|remote")
     .option("--remote-url <url>", "Remote Gateway WebSocket URL")
     .option("--remote-token <token>", "Remote Gateway token (optional)")
     .action(async (opts, command) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
+        // Handle --full flag
+        if (opts.full) {
+          await runFullOnboarding();
+          return;
+        }
+        
         const hasWizardFlags = hasExplicitOptions(command, [
           "wizard",
           "nonInteractive",
