@@ -152,8 +152,12 @@ clancybot profile compare balanced maximum
 **Requirements:** Node.js ≥22
 
 ```bash
+# Clone from GitHub
+git clone https://github.com/noambars121/clancybot.git
+cd clancybot
+
 # Install globally
-npm install -g clancybot@latest
+npm install -g .
 
 # Run secure setup wizard (with profile selection)
 clancybot setup --secure
@@ -164,6 +168,8 @@ clancybot profile select balanced
 # Start the gateway
 clancybot gateway run --bind loopback --port 18789
 ```
+
+> **⚠️ Note:** ClancyBot is not yet published to npm. Install directly from GitHub as shown above.
 
 The setup wizard now includes:
 - ✅ **Security profile selection** (Maximum/Balanced/Development)
@@ -194,6 +200,42 @@ clancybot security audit
 clancybot profile show
 clancybot profile select maximum
 ```
+
+---
+
+## 🐧 VPS/Ubuntu Deployment
+
+**For production deployment on Ubuntu VPS:**
+
+```bash
+# 1. Install Node.js 22+
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs git
+
+# 2. Clone ClancyBot
+git clone https://github.com/noambars121/clancybot.git
+cd clancybot
+
+# 3. Install globally
+sudo npm install -g .
+
+# 4. Setup (interactive wizard)
+clancybot setup --secure
+# Choose: Balanced (95/100) for production or Maximum (100/100) for max security
+
+# 5. Run gateway
+clancybot gateway run --bind 0.0.0.0 --port 18789
+
+# Optional: Run as systemd service (daemonize)
+# See: https://docs.molt.bot/gateway/deployment for systemd setup
+```
+
+**Security Recommendations for VPS:**
+- ✅ Use `ufw` firewall to limit port access
+- ✅ Set up SSL/TLS with nginx reverse proxy
+- ✅ Choose **Balanced** (95/100) or **Maximum** (100/100) profile
+- ✅ Enable Docker sandbox (`sudo apt install docker.io`)
+- ⚠️ Never use **Development** profile on public servers!
 
 ---
 
@@ -237,10 +279,11 @@ For full configuration options, see the [original Moltbot docs](https://docs.mol
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/clancybot.git
+git clone https://github.com/noambars121/clancybot.git
 cd clancybot
 
-# Install dependencies
+# Install dependencies (requires pnpm)
+npm install -g pnpm
 pnpm install
 
 # Build
@@ -249,6 +292,8 @@ pnpm build
 # Run in dev mode
 pnpm clancybot gateway run --dev
 ```
+
+**Note:** Development requires `pnpm`. For production/VPS, use the simpler `npm install -g .` method shown above.
 
 ---
 
