@@ -255,7 +255,7 @@ export class CanaryTokenManager {
                 "1. Rotate ALL credentials immediately\n" +
                 "2. Review system for malware/infostealers\n" +
                 "3. Change memory encryption passphrase\n" +
-                "4. Run 'moltbot doctor' for security audit\n" +
+                "4. Run 'clancybot doctor' for security audit\n" +
                 "5. Check recent file access logs\n" +
                 "6. Consider isolating the machine",
             });

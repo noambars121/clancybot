@@ -51,9 +51,9 @@ function generateSecureToken(): string {
 // ============================================================================
 
 async function stepIntro(): Promise<void> {
-  intro("🔒 Moltbot Secure Setup Wizard");
+  intro("🔒 ClancyBot Secure Setup Wizard");
   note(
-    `This wizard will configure Moltbot with Pentagon-level security.\n\nFeatures:\n• ✓ 3 Security Profiles (Maximum/Balanced/Development)\n• ✓ Auto-generated secure tokens\n• ✓ Docker sandbox isolation\n• ✓ Memory encryption\n• ✓ Network policies\n• ✓ Comprehensive monitoring`,
+    `This wizard will configure ClancyBot with Pentagon-level security.\n\nFeatures:\n• ✓ 3 Security Profiles (Maximum/Balanced/Development)\n• ✓ Auto-generated secure tokens\n• ✓ Docker sandbox isolation\n• ✓ Memory encryption\n• ✓ Network policies\n• ✓ Comprehensive monitoring`,
     "Welcome",
   );
 }
@@ -193,13 +193,13 @@ export async function runSecureSetup(): Promise<void> {
       `✓ Security Score: ${String(profileConfig.score)}/100\n` +
       `✓ Defense Layers: ${String(profileConfig.layers)}/14\n\n` +
       `Next steps:\n` +
-      `• Run 'moltbot gateway' to start\n` +
-      `• Run 'moltbot setup --secure-extra' for advanced features\n` +
-      `• Run 'moltbot security-dashboard' to monitor`,
+      `• Run 'clancybot gateway' to start\n` +
+      `• Run 'clancybot setup --secure-extra' for advanced features\n` +
+      `• Run 'clancybot security-dashboard' to monitor`,
     "Setup Complete! 🎉",
   );
 
-  outro("Moltbot is now configured with Pentagon-level security! 🛡️");
+  outro("ClancyBot is now configured with Pentagon-level security! 🛡️");
 
   log.info("Secure setup completed", {
     profile: profileConfig.name,
