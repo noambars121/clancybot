@@ -37,6 +37,7 @@ const log = getChildLogger({ module: "onboard-full" });
 
 type AIProvider = "anthropic" | "openai" | "gemini" | "openrouter";
 type MessagingChannel = "whatsapp" | "discord" | "telegram" | "slack";
+type GatewayBindChoice = "loopback" | "lan";
 
 interface OnboardingChoices {
   aiProvider: AIProvider;
@@ -229,7 +230,7 @@ async function setupGateway(): Promise<{ port: number; bind: string; auth: boole
     message: "🔗 Gateway bind address:",
     options: [
       { value: "loopback", label: "Loopback (127.0.0.1)", hint: "Local only - more secure" },
-      { value: "all", label: "All interfaces (0.0.0.0)", hint: "Remote access - requires auth" },
+      { value: "lan", label: "LAN (local network)", hint: "Remote access - requires auth" },
     ],
     initialValue: "loopback",
   });
@@ -238,7 +239,7 @@ async function setupGateway(): Promise<{ port: number; bind: string; auth: boole
   let authEnabled = false;
   let authToken: string | undefined;
 
-  if (bindResult === "all") {
+  if (bindResult === "lan") {
     const enableAuth = await confirm({
       message: "🔑 Enable gateway authentication? (Highly recommended for remote access)",
       initialValue: true,
@@ -272,23 +273,11 @@ async function setupGateway(): Promise<{ port: number; bind: string; auth: boole
 function buildConfig(choices: OnboardingChoices): Partial<MoltbotConfig> {
   const config: Partial<MoltbotConfig> = {};
 
-  // AI Provider
-  const envVar = getDefaultApiKeyEnvVar(choices.aiProvider);
-  (config as any).providers = {
-    [choices.aiProvider]: {
-      apiKey: `\${${envVar}}`,
-    },
-  };
-
-  (config as any).model = {
-    defaultProvider: choices.aiProvider,
-  };
-
   // Channels
   if (choices.channels.length > 0) {
-    (config as any).channels = {};
+    config.channels = {};
     for (const channel of choices.channels) {
-      (config as any).channels[channel] = {
+      (config.channels as any)[channel] = {
         enabled: true,
         dm: {
           policy: choices.enablePairing ? "pairing" : "allowlist",
@@ -298,31 +287,33 @@ function buildConfig(choices: OnboardingChoices): Partial<MoltbotConfig> {
     }
   }
 
-  // Skills
+  // Tools (browser is under tools, not skills)
   if (choices.enableBrowser || choices.enablePython || choices.enableShell) {
-    (config as any).skills = {};
+    config.tools = {};
     if (choices.enableBrowser) {
-      (config as any).skills.browser = { enabled: true };
-    }
-    if (choices.enablePython) {
-      (config as any).skills.python = { enabled: true };
-    }
-    if (choices.enableShell) {
-      (config as any).skills.shell = { enabled: true, requireApproval: true };
+      (config.tools as any).browser = { enabled: true };
     }
   }
 
   // Gateway
-  (config as any).gateway = {
+  config.gateway = {
     mode: "local",
     port: choices.gatewayPort,
-    bind: choices.gatewayBind === "all" ? "0.0.0.0" : "127.0.0.1",
+    bind: choices.gatewayBind,
     ...(choices.enableAuth && {
       auth: {
         mode: "token",
         token: choices.authToken,
       },
     }),
+  };
+
+  // Environment variables (store API key in env.vars, not as a reference)
+  const envVar = getDefaultApiKeyEnvVar(choices.aiProvider);
+  config.env = {
+    vars: {
+      [envVar]: choices.apiKey,
+    },
   };
 
   return config;
@@ -440,23 +431,18 @@ export async function runFullOnboarding(): Promise<void> {
     // Write config
     await writeConfigFile(config);
 
-    // Set environment variable
-    const envVar = getDefaultApiKeyEnvVar(choices.aiProvider);
-    const envFile = path.join(homedir(), ".profile");
-    const envLine = `export ${envVar}="${choices.apiKey}"`;
-    
     s.stop("✅ Configuration saved!");
 
     // Summary
     note(
       `AI Provider: ${choices.aiProvider}\n` +
+      `API Key: Saved in config (env.vars.${getDefaultApiKeyEnvVar(choices.aiProvider)})\n` +
       `Channels: ${choices.channels.length > 0 ? choices.channels.join(", ") : "None"}\n` +
-      `Skills: Browser=${choices.enableBrowser}, Python=${choices.enablePython}, Shell=${choices.enableShell}\n` +
+      `Tools: Browser=${choices.enableBrowser}\n` +
       `Security: ${choices.securityProfile}\n` +
-      `DM Pairing: ${choices.enablePairing ? "✅ Enabled" : "❌ Disabled"}\n` +
+      `DM Pairing: ${choices.enablePairing ? `✅ Code: ${choices.pairingCode}` : "❌ Disabled"}\n` +
       `Gateway: ${choices.gatewayBind}:${choices.gatewayPort}\n` +
-      `Gateway Auth: ${choices.enableAuth ? "✅ Enabled" : "❌ Disabled"}\n\n` +
-      `⚠️  Don't forget to add to ${envFile}:\n${envLine}`,
+      `Gateway Auth: ${choices.enableAuth ? `✅ Token saved` : "❌ Disabled"}`,
       "📋 Setup Summary"
     );
 
