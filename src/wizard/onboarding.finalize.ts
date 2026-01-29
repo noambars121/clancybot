@@ -364,8 +364,8 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         [
           `Dashboard link (with token): ${authedUrl}`,
           controlUiOpened
-            ? "Opened in your browser. Keep that tab to control Moltbot."
-            : "Copy/paste this URL in a browser on this machine to control Moltbot.",
+            ? "Opened in your browser. Keep that tab to control ClancyBot."
+            : "Copy/paste this URL in a browser on this machine to control ClancyBot.",
           controlUiOpenHint,
         ]
           .filter(Boolean)
@@ -422,8 +422,8 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       [
         `Dashboard link (with token): ${authedUrl}`,
         controlUiOpened
-          ? "Opened in your browser. Keep that tab to control Moltbot."
-          : "Copy/paste this URL in a browser on this machine to control Moltbot.",
+          ? "Opened in your browser. Keep that tab to control ClancyBot."
+          : "Copy/paste this URL in a browser on this machine to control ClancyBot.",
         controlUiOpenHint,
       ]
         .filter(Boolean)
@@ -467,9 +467,9 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.outro(
     controlUiOpened
-      ? "Onboarding complete. Dashboard opened with your token; keep that tab to control Moltbot."
+      ? "Onboarding complete. Dashboard opened with your token; keep that tab to control ClancyBot."
       : seededInBackground
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
-        : "Onboarding complete. Use the tokenized dashboard link above to control Moltbot.",
+        : "Onboarding complete. Use the tokenized dashboard link above to control ClancyBot.",
   );
 }
