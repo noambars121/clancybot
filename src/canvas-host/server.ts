@@ -271,7 +271,7 @@ export async function createCanvasHostHandler(
     debounce = setTimeout(() => {
       debounce = null;
       broadcastReload();
-    }, 75);
+    }, 75) as unknown as NodeJS.Timeout;
     debounce.unref?.();
   };
 

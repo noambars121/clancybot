@@ -69,7 +69,7 @@ export async function responseBodyViaPlaywright(opts: {
           `Response not found for url pattern "${pattern}". Run '${formatCliCommand("moltbot browser requests")}' to inspect recent network activity.`,
         ),
       );
-    }, timeout);
+    }, timeout) as unknown as NodeJS.Timeout;
   });
 
   const resp = (await promise) as {

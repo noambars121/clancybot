@@ -53,7 +53,7 @@ function createPageDownloadWaiter(page: Page, timeoutMs: number) {
       done = true;
       cleanup();
       reject(new Error("Timeout waiting for download"));
-    }, timeoutMs);
+    }, timeoutMs) as unknown as NodeJS.Timeout;
   });
 
   return {

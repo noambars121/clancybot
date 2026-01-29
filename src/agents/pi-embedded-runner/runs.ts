@@ -77,7 +77,7 @@ export function waitForEmbeddedPiRunEnd(sessionId: string, timeoutMs = 15_000): 
           resolve(false);
         },
         Math.max(100, timeoutMs),
-      ),
+      ) as unknown as NodeJS.Timeout,
     };
     waiters.add(waiter);
     EMBEDDED_RUN_WAITERS.set(sessionId, waiters);

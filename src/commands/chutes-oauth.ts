@@ -111,7 +111,7 @@ async function waitForLocalCallback(params: {
         server.close();
       } catch {}
       reject(new Error("OAuth callback timeout"));
-    }, params.timeoutMs);
+    }, params.timeoutMs) as unknown as NodeJS.Timeout;
   });
 }
 

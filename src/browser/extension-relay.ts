@@ -184,7 +184,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
       const timer = setTimeout(() => {
         pendingExtension.delete(payload.id);
         reject(new Error(`extension request timeout: ${payload.params.method}`));
-      }, 30_000);
+      }, 30_000) as unknown as NodeJS.Timeout;
       pendingExtension.set(payload.id, { resolve, reject, timer });
     });
   };

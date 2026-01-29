@@ -20,7 +20,7 @@ export function armTimer(state: CronServiceState) {
     void onTimer(state).catch((err) => {
       state.deps.log.error({ err: String(err) }, "cron: timer tick failed");
     });
-  }, clampedDelay);
+  }, clampedDelay) as unknown as NodeJS.Timeout;
   state.timer.unref?.();
 }
 

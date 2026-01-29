@@ -132,7 +132,7 @@ export function createCliProgress(options: ProgressOptions): ProgressReporter {
   if (delayMs === 0) {
     start();
   } else {
-    timer = setTimeout(start, delayMs);
+    timer = setTimeout(start, delayMs) as unknown as NodeJS.Timeout;
   }
 
   const setLabel = (next: string) => {
