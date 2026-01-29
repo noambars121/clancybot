@@ -68,7 +68,7 @@ export async function doctorCommand(
 ) {
   const prompter = createDoctorPrompter({ runtime, options });
   printWizardHeader(runtime);
-  intro("Moltbot doctor");
+  intro("ClancyBot doctor");
 
   const root = await resolveMoltbotPackageRoot({
     moduleUrl: import.meta.url,
