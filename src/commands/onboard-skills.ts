@@ -5,6 +5,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { detectBinary, resolveNodeManagerOptions } from "./onboard-helpers.js";
+import { runCommandWithTimeout } from "../process/exec.js";
 
 function summarizeInstallFailure(message: string): string | undefined {
   const cleaned = message.replace(/^Install failed(?:\s*\([^)]*\))?\s*:?\s*/i, "").trim();
@@ -76,22 +77,85 @@ export async function setupSkills(
   if (needsBrewPrompt) {
     await prompter.note(
       [
-        "Many skill dependencies are shipped via Homebrew.",
-        "Without brew, you'll need to build from source or download releases manually.",
+        "Many skill dependencies require Homebrew (package manager).",
+        "Without brew, skills cannot be installed automatically.",
       ].join("\n"),
-      "Homebrew recommended",
+      "Homebrew required",
     );
-    const showBrewInstall = await prompter.confirm({
-      message: "Show Homebrew install command?",
+    const installBrew = await prompter.confirm({
+      message: "Install Homebrew now? (recommended)",
       initialValue: true,
     });
-    if (showBrewInstall) {
+    if (installBrew) {
+      const spin = prompter.progress("Installing Homebrew...");
+      try {
+        // Install Homebrew
+        const installCmd = 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash';
+        await runCommandWithTimeout(["bash", "-c", installCmd], {
+          timeoutMs: 600000, // 10 minutes timeout
+        });
+        
+        // Add Homebrew to PATH for current session
+        const brewPath = "/home/linuxbrew/.linuxbrew/bin/brew";
+        if (await detectBinary(brewPath)) {
+          const { stdout } = await runCommandWithTimeout([brewPath, "shellenv"], {
+            timeoutMs: 5000,
+          });
+          const envVars = stdout.split("\n").filter((line: string) => line.startsWith("export "));
+          for (const line of envVars) {
+            const match = line.match(/export\s+(\w+)="([^"]*)"/);
+            if (match) {
+              process.env[match[1]] = match[2];
+            }
+          }
+        }
+        
+        spin.stop("✅ Homebrew installed successfully!");
+        
+        // Install uv (Python package manager) automatically
+        await prompter.note("Installing uv (Python package manager)...", "Additional setup");
+        const uvSpin = prompter.progress("Installing uv...");
+        try {
+          await runCommandWithTimeout(["brew", "install", "uv"], {
+            timeoutMs: 300000, // 5 minutes timeout
+          });
+          uvSpin.stop("✅ uv installed successfully!");
+        } catch {
+          uvSpin.stop("⚠️ uv installation failed (can be installed later)");
+        }
+        
+        await prompter.note(
+          [
+            "✅ Homebrew is now ready!",
+            "Note: Add Homebrew to your shell permanently by running:",
+            'echo \'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\' >> ~/.bashrc',
+          ].join("\n"),
+          "Setup complete",
+        );
+      } catch (err) {
+        spin.stop("❌ Homebrew installation failed");
+        runtime.error(`Failed to install Homebrew: ${String(err)}`);
+        await prompter.note(
+          [
+            "Manual installation required:",
+            '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
+            "",
+            "After installation, add to PATH:",
+            'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"',
+          ].join("\n"),
+          "Homebrew installation",
+        );
+      }
+    } else {
       await prompter.note(
         [
-          "Run:",
+          "Skipping Homebrew installation.",
+          "Skills requiring brew will not be installed.",
+          "",
+          "To install later, run:",
           '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
         ].join("\n"),
-        "Homebrew install",
+        "Homebrew skipped",
       );
     }
   }
