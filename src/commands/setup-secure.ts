@@ -28,6 +28,14 @@ import {
   validateProfile,
 } from "../config/security-profiles.js";
 
+// Color helpers (simple passthrough)
+const bold = (s: string) => s;
+const cyan = (s: string) => s;
+const green = (s: string) => s;
+const yellow = (s: string) => s;
+const red = (s: string) => s;
+const dim = (s: string) => s;
+
 const log = getChildLogger({ module: "setup-secure" });
 
 // ============================================================================
