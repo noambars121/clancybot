@@ -19,6 +19,7 @@ import {
 } from "../../infra/restart-sentinel.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { loadMoltbotPlugins } from "../../plugins/loader.js";
+import type { MoltbotConfig } from "../../config/types.js";
 import {
   ErrorCodes,
   errorShape,
@@ -248,7 +249,7 @@ export const configHandlers: GatewayRequestHandlers = {
     const merged = applyMergePatch(snapshot.config, parsedRes.parsed);
     const migrated = applyLegacyMigrations(merged);
     const resolved = migrated.next ?? merged;
-    const validated = validateConfigObjectWithPlugins(resolved);
+    const validated = validateConfigObjectWithPlugins(resolved as MoltbotConfig);
     if (!validated.ok) {
       respond(
         false,
