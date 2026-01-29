@@ -15,7 +15,7 @@ import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
 import { pruneToolResponse, formatPruningStats } from "./response-pruning.js";
 
-const log = getChildLogger("gateway-tool");
+const log = getChildLogger({ module: "gateway-tool" });
 
 function resolveBaseHashFromSnapshot(snapshot: unknown): string | undefined {
   if (!snapshot || typeof snapshot !== "object") return undefined;

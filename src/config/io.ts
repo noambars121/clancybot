@@ -413,7 +413,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       const resolvedConfigRaw = substituted;
       const legacyIssues = findLegacyConfigIssues(resolvedConfigRaw);
 
-      const validated = validateConfigObjectWithPlugins(resolvedConfigRaw);
+      const validated = validateConfigObjectWithPlugins(resolvedConfigRaw as MoltbotConfig);
       if (!validated.ok) {
         return {
           path: configPath,

@@ -170,7 +170,7 @@ export const configHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
       return;
     }
-    const validated = validateConfigObjectWithPlugins(parsedRes.parsed);
+    const validated = validateConfigObjectWithPlugins(parsedRes.parsed as MoltbotConfig);
     if (!validated.ok) {
       respond(
         false,
@@ -345,7 +345,7 @@ export const configHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
       return;
     }
-    const validated = validateConfigObjectWithPlugins(parsedRes.parsed);
+    const validated = validateConfigObjectWithPlugins(parsedRes.parsed as MoltbotConfig);
     if (!validated.ok) {
       respond(
         false,

@@ -23,7 +23,7 @@ import {
 } from "../config/sessions.js";
 import { getChildLogger } from "../logging/logger.js";
 
-const log = getChildLogger("session-model-override");
+const log = getChildLogger({ module: "session-model-override" });
 
 export interface ModelOverride {
   provider: string;

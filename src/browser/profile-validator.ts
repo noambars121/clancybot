@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getChildLogger } from "../logging/logger.js";
 
-const log = getChildLogger("browser-profile-validator");
+const log = getChildLogger({ module: "browser-profile-validator" });
 
 export interface BrowserProfileValidationResult {
   valid: boolean;

@@ -25,7 +25,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getChildLogger } from "../logging/logger.js";
 
-const log = getChildLogger("skills-verification");
+const log = getChildLogger({ module: "skills-verification" });
 
 export interface SkillVerificationResult {
   verified: boolean;
